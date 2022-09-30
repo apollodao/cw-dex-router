@@ -224,18 +224,25 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
 }
 
 pub fn simulate_swap_operations(
-    _deps: Deps,
+    deps: Deps,
     _env: Env,
-    offer_amount: Uint128,
+    mut offer_amount: Uint128,
     operations: SwapOperationsListUnchecked,
 ) -> Result<Uint128, ContractError> {
-    let mut _offer_amount = offer_amount;
-    for _operation in operations.0 {
-        // TODO: Must add simulate_swap on Pool Trait
-        // operation.pool.as_trait().simulate_swap(deps, offer, ask, recipient)
+    let operations = operations.check(deps.api)?;
+
+    for operation in operations.0 {
+        let offer_asset = Asset::new(operation.offer_asset_info, offer_amount);
+
+        offer_amount = operation.pool.as_trait().simulate_swap(
+            deps,
+            offer_asset,
+            operation.ask_asset_info,
+            Uint128::zero(),
+        )?;
     }
 
-    Ok(Uint128::default())
+    Ok(offer_amount)
 }
 
 //TODO: Write tests
