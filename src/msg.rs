@@ -1,7 +1,9 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::{wasm_execute, Addr, CosmosMsg, Decimal, Deps, Empty, Env, Response, Uint128};
+use cosmwasm_std::{
+    wasm_execute, Addr, Api, CosmosMsg, Decimal, Deps, Empty, Env, Response, StdResult, Uint128,
+};
 use cw20::Cw20ReceiveMsg;
-use cw_asset::{Asset, AssetInfo};
+use cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cw_dex::osmosis::OsmosisPool;
 use cw_dex::Pool as PoolTrait;
 
@@ -13,7 +15,7 @@ pub type InstantiateMsg = Empty;
 pub enum ExecuteMsg {
     Receive(Cw20ReceiveMsg),
     ExecuteSwapOperations {
-        operations: Vec<SwapOperation>,
+        operations: SwapOperationsListUnchecked,
         /// Optional because we only need the information if the user wants to
         /// swap a Cw20 with TransferFrom
         offer_amount: Option<Uint128>,
@@ -49,7 +51,7 @@ impl CallbackMsg {
 #[cw_serde]
 pub enum Cw20HookMsg {
     ExecuteSwapOperations {
-        operations: Vec<SwapOperation>,
+        operations: SwapOperationsListUnchecked,
         /// Optional because we only need the information if the user wants to
         /// swap a Cw20 with TransferFrom
         minimum_receive: Option<Uint128>,
@@ -65,7 +67,7 @@ pub enum QueryMsg {
     #[returns(Uint128)]
     SimulateSwapOperations {
         offer_amount: Uint128,
-        operations: Vec<SwapOperation>,
+        operations: SwapOperationsListUnchecked,
     },
 }
 
@@ -77,6 +79,7 @@ pub enum MigrateMsg {}
 /// the caller can pass in any type that implements the Pool trait, but trait
 /// objects require us not to implement the Sized trait, which cw_serde requires.
 #[cw_serde]
+#[derive(Copy)]
 pub enum Pool {
     Osmosis(OsmosisPool),
 }
@@ -90,10 +93,23 @@ impl Pool {
 }
 
 #[cw_serde]
-pub struct SwapOperation {
+pub struct SwapOperationBase<T> {
     pub pool: Pool,
-    pub offer_asset_info: AssetInfo,
-    pub ask_asset_info: AssetInfo,
+    pub offer_asset_info: AssetInfoBase<T>,
+    pub ask_asset_info: AssetInfoBase<T>,
+}
+
+pub type SwapOperationUnchecked = SwapOperationBase<String>;
+pub type SwapOperation = SwapOperationBase<Addr>;
+
+impl SwapOperationUnchecked {
+    pub fn check(&self, api: &dyn Api) -> StdResult<SwapOperation> {
+        Ok(SwapOperation {
+            ask_asset_info: self.ask_asset_info.check(api, None)?,
+            offer_asset_info: self.offer_asset_info.check(api, None)?,
+            pool: self.pool,
+        })
+    }
 }
 
 impl SwapOperation {
@@ -110,5 +126,35 @@ impl SwapOperation {
             minimum_receive.unwrap_or_default(), //TODO: Should swap on pool trait really take an asset? Maybe better with separate min_receive parameter
         );
         Ok(self.pool.as_trait().swap(deps, offer, ask, recipient)?)
+    }
+}
+
+#[cw_serde]
+pub struct SwapOperationsListBase<T>(pub Vec<SwapOperationBase<T>>);
+
+pub type SwapOperationsListUnchecked = SwapOperationsListBase<String>;
+pub type SwapOperationsList = SwapOperationsListBase<Addr>;
+
+impl SwapOperationsListUnchecked {
+    pub fn check(&self, api: &dyn Api) -> Result<SwapOperationsList, ContractError> {
+        let operations = self
+            .0
+            .iter()
+            .map(|x| x.check(api))
+            .collect::<StdResult<Vec<_>>>()?;
+
+        if operations.len() < 1 {
+            return Err(ContractError::MustProvideOperations);
+        }
+
+        let mut last_offer_asset = operations.first().unwrap().offer_asset_info.clone();
+        for operation in operations.iter().skip(1) {
+            if operation.ask_asset_info != last_offer_asset {
+                return Err(ContractError::InvalidSwapOperations);
+            }
+            last_offer_asset = operation.offer_asset_info.clone();
+        }
+
+        Ok(SwapOperationsListBase(operations))
     }
 }

@@ -9,7 +9,10 @@ use cw20::Cw20ReceiveMsg;
 use cw_asset::{Asset, AssetInfo, AssetInfoBase};
 
 use crate::error::ContractError;
-use crate::msg::{CallbackMsg, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg, SwapOperation};
+use crate::msg::{
+    CallbackMsg, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg, SwapOperation,
+    SwapOperationsListUnchecked,
+};
 
 const CONTRACT_NAME: &str = "crates.io:cw-dex-router";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -111,7 +114,7 @@ pub fn execute_swap_operations(
     env: Env,
     info: MessageInfo,
     sender: Addr,
-    operations: Vec<SwapOperation>,
+    operations: SwapOperationsListUnchecked,
     offer_amount: Option<Uint128>,
     minimum_receive: Option<Uint128>,
     to: Option<String>,
@@ -121,14 +124,11 @@ pub fn execute_swap_operations(
     let recipient = to.map_or(Ok(sender.clone()), |x| deps.api.addr_validate(&x))?;
 
     //1. Validate operations
-    let operations_len = operations.len();
-    if operations_len < 1 {
-        return Err(ContractError::MustProvideOperations);
-    }
-    //TODO: Also validate that the assets are in a correct order
+    let operations = operations.check(deps.api)?;
+    let operations_len = operations.0.len();
 
-    let target_asset_info = operations.last().unwrap().ask_asset_info.clone();
-    let offer_asset_info = operations.first().unwrap().offer_asset_info.clone();
+    let target_asset_info = operations.0.last().unwrap().ask_asset_info.clone();
+    let offer_asset_info = operations.0.first().unwrap().offer_asset_info.clone();
 
     //2. Validate sent asset. We only do this if the passed in optional `offer_amount`
     //   and in this case we do transfer from on it, given that the offer asset is
@@ -153,6 +153,7 @@ pub fn execute_swap_operations(
 
     //2. Loop and execute swap operations
     let mut msgs: Vec<CosmosMsg> = operations
+        .0
         .into_iter()
         .enumerate()
         .map(|(i, operation)| {
@@ -239,16 +240,10 @@ pub fn simulate_swap_operations(
     _deps: Deps,
     _env: Env,
     offer_amount: Uint128,
-    operations: Vec<SwapOperation>,
+    operations: SwapOperationsListUnchecked,
 ) -> Result<Uint128, ContractError> {
-    //1. Validate operations
-    let operations_len = operations.len();
-    if operations_len < 1 {
-        return Err(ContractError::MustProvideOperations);
-    }
-
     let mut _offer_amount = offer_amount;
-    for _operation in operations {
+    for _operation in operations.0 {
         // TODO: Must add simulate_swap on Pool Trait
         // operation.pool.as_trait().simulate_swap(deps, offer, ask, recipient)
     }

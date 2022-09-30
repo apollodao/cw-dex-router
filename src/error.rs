@@ -25,6 +25,9 @@ pub enum ContractError {
     #[error("Unauthorized")]
     Unauthorized,
 
+    #[error("Invalid swap operations")]
+    InvalidSwapOperations,
+
     #[error("Did not receive minimum amount")]
     FailedMinimumReceive,
 }

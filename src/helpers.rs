@@ -44,21 +44,3 @@ impl CwTemplateContract {
         Ok(res)
     }
 }
-
-/// Merge several Response objects into one. Currently ignores the data fields.
-pub(crate) fn merge_responses(responses: Vec<Response>) -> Response {
-    let mut merged = Response::default();
-    for response in responses {
-        merged = merged
-            .add_attributes(response.attributes)
-            .add_events(response.events)
-            .add_messages(
-                response
-                    .messages
-                    .iter()
-                    .map(|m| m.msg.clone())
-                    .collect::<Vec<_>>(),
-            );
-    }
-    merged
-}
