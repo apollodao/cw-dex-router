@@ -1,6 +1,6 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{
-    wasm_execute, Addr, Api, CosmosMsg, Decimal, Deps, Empty, Env, Response, StdResult, Uint128,
+    wasm_execute, Addr, Api, CosmosMsg, Deps, Empty, Env, Response, StdResult, Uint128,
 };
 use cw20::Cw20ReceiveMsg;
 use cw_asset::{Asset, AssetInfo, AssetInfoBase};
@@ -21,8 +21,6 @@ pub enum ExecuteMsg {
         offer_amount: Option<Uint128>,
         minimum_receive: Option<Uint128>,
         to: Option<String>,
-        /// TODO: Doc comment. Diff to min receive?
-        max_spread: Option<Decimal>,
     },
     Callback(CallbackMsg),
 }
@@ -32,7 +30,6 @@ pub enum CallbackMsg {
     ExecuteSwapOperation {
         operation: SwapOperation,
         to: Addr,
-        max_spread: Option<Decimal>,
     },
     AssertMinimumReceive {
         asset_info: AssetInfo,
@@ -52,12 +49,8 @@ impl CallbackMsg {
 pub enum Cw20HookMsg {
     ExecuteSwapOperations {
         operations: SwapOperationsListUnchecked,
-        /// Optional because we only need the information if the user wants to
-        /// swap a Cw20 with TransferFrom
         minimum_receive: Option<Uint128>,
         to: Option<String>,
-        /// TODO: Doc comment. Diff to min receive?
-        max_spread: Option<Decimal>,
     },
 }
 
@@ -120,12 +113,15 @@ impl SwapOperation {
         minimum_receive: Option<Uint128>,
         recipient: Addr,
     ) -> Result<Response, ContractError> {
-        let offer = Asset::new(self.offer_asset_info.clone(), offer_amount);
-        let ask = Asset::new(
+        let offer_asset = Asset::new(self.offer_asset_info.clone(), offer_amount);
+        let minimum_receive = minimum_receive.unwrap_or_default();
+        Ok(self.pool.as_trait().swap(
+            deps,
+            offer_asset,
             self.ask_asset_info.clone(),
-            minimum_receive.unwrap_or_default(), //TODO: Should swap on pool trait really take an asset? Maybe better with separate min_receive parameter
-        );
-        Ok(self.pool.as_trait().swap(deps, offer, ask, recipient)?)
+            minimum_receive,
+            recipient,
+        )?)
     }
 }
 

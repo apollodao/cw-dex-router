@@ -1,8 +1,8 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    from_binary, to_binary, Addr, Binary, Coin, CosmosMsg, Decimal, Deps, DepsMut, Env,
-    MessageInfo, Response, StdResult, Uint128,
+    from_binary, to_binary, Addr, Binary, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
+    Response, StdResult, Uint128,
 };
 use cw2::set_contract_version;
 use cw20::Cw20ReceiveMsg;
@@ -42,7 +42,6 @@ pub fn execute(
             offer_amount,
             minimum_receive,
             to,
-            max_spread,
         } => execute_swap_operations(
             deps,
             env,
@@ -52,18 +51,15 @@ pub fn execute(
             offer_amount,
             minimum_receive,
             to,
-            max_spread,
         ),
         ExecuteMsg::Callback(msg) => {
             if info.sender != env.contract.address {
                 return Err(ContractError::Unauthorized);
             }
             match msg {
-                CallbackMsg::ExecuteSwapOperation {
-                    operation,
-                    to,
-                    max_spread,
-                } => execute_swap_operation(deps, env, operation, to, max_spread),
+                CallbackMsg::ExecuteSwapOperation { operation, to } => {
+                    execute_swap_operation(deps, env, operation, to)
+                }
                 CallbackMsg::AssertMinimumReceive {
                     asset_info,
                     prev_balance,
@@ -94,7 +90,6 @@ pub fn receive_cw20(
             operations,
             minimum_receive,
             to,
-            max_spread,
         } => execute_swap_operations(
             deps,
             env,
@@ -104,7 +99,6 @@ pub fn receive_cw20(
             None,
             minimum_receive,
             to,
-            max_spread,
         ),
     }
 }
@@ -118,7 +112,6 @@ pub fn execute_swap_operations(
     offer_amount: Option<Uint128>,
     minimum_receive: Option<Uint128>,
     to: Option<String>,
-    max_spread: Option<Decimal>,
 ) -> Result<Response, ContractError> {
     //Validate input or use sender address if None
     let recipient = to.map_or(Ok(sender.clone()), |x| deps.api.addr_validate(&x))?;
@@ -163,12 +156,7 @@ pub fn execute_swap_operations(
             } else {
                 env.contract.address.clone()
             };
-            CallbackMsg::ExecuteSwapOperation {
-                operation,
-                to,
-                max_spread,
-            }
-            .into_cosmos_msg(&env)
+            CallbackMsg::ExecuteSwapOperation { operation, to }.into_cosmos_msg(&env)
         })
         .collect::<Result<Vec<_>, _>>()?;
 
@@ -194,7 +182,6 @@ pub fn execute_swap_operation(
     env: Env,
     operation: SwapOperation,
     to: Addr,
-    _max_spread: Option<Decimal>, //TODO: Use max spread
 ) -> Result<Response, ContractError> {
     //We use all of the contracts balance.
     let offer_amount = operation
