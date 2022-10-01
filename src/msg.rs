@@ -125,6 +125,16 @@ impl SwapOperation {
     }
 }
 
+impl From<&SwapOperation> for SwapOperationUnchecked {
+    fn from(checked: &SwapOperation) -> Self {
+        Self {
+            ask_asset_info: checked.ask_asset_info.clone().into(),
+            offer_asset_info: checked.offer_asset_info.clone().into(),
+            pool: checked.pool,
+        }
+    }
+}
+
 #[cw_serde]
 pub struct SwapOperationsListBase<T>(pub Vec<SwapOperationBase<T>>);
 
@@ -152,5 +162,11 @@ impl SwapOperationsListUnchecked {
         }
 
         Ok(SwapOperationsListBase(operations))
+    }
+}
+
+impl From<&SwapOperationsList> for SwapOperationsListUnchecked {
+    fn from(checked: &SwapOperationsList) -> Self {
+        Self(checked.0.iter().map(|x| x.into()).collect())
     }
 }
