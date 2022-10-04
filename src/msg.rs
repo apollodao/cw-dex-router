@@ -3,7 +3,7 @@ use cosmwasm_std::{
     wasm_execute, Addr, Api, CosmosMsg, Deps, Empty, Env, Response, StdResult, Uint128,
 };
 use cw20::Cw20ReceiveMsg;
-use cw_asset::{Asset, AssetInfo, AssetInfoBase};
+use cw_asset::{Asset, AssetInfo, AssetInfoBase, AssetInfoUnchecked, AssetListUnchecked};
 use cw_dex::osmosis::OsmosisPool;
 use cw_dex::Pool as PoolTrait;
 
@@ -21,6 +21,17 @@ pub enum ExecuteMsg {
         offer_amount: Option<Uint128>,
         minimum_receive: Option<Uint128>,
         to: Option<String>,
+    },
+    BasketLiquidate {
+        offer_assets: AssetListUnchecked,
+        receive_asset: AssetInfoUnchecked,
+        minimum_receive: Option<Uint128>,
+        to: Option<String>,
+    },
+    UpdatePath {
+        offer_asset: AssetInfoUnchecked,
+        ask_asset: AssetInfoUnchecked,
+        path: SwapOperationsListUnchecked,
     },
     Callback(CallbackMsg),
 }
@@ -165,8 +176,41 @@ impl SwapOperationsListUnchecked {
     }
 }
 
+impl SwapOperationsList {
+    pub fn into_execute_msgs(
+        &self,
+        env: &Env,
+        recipient: Addr,
+    ) -> Result<Vec<CosmosMsg>, ContractError> {
+        let operations_len = self.0.len();
+        let mut msgs = vec![];
+        for (i, operation) in self.0.iter().enumerate() {
+            //Always send assets to self except for last operation
+            let to = if i == operations_len - 1 {
+                recipient.clone()
+            } else {
+                env.contract.address.clone()
+            };
+            msgs.push(
+                CallbackMsg::ExecuteSwapOperation {
+                    operation: operation.clone(),
+                    to,
+                }
+                .into_cosmos_msg(&env)?,
+            )
+        }
+        Ok(msgs)
+    }
+}
+
 impl From<&SwapOperationsList> for SwapOperationsListUnchecked {
     fn from(checked: &SwapOperationsList) -> Self {
         Self(checked.0.iter().map(|x| x.into()).collect())
+    }
+}
+
+impl From<Vec<SwapOperation>> for SwapOperationsList {
+    fn from(x: Vec<SwapOperation>) -> Self {
+        Self(x)
     }
 }

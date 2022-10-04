@@ -1,18 +1,20 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    from_binary, to_binary, Addr, Binary, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
-    Response, StdResult, Uint128,
+    from_binary, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response,
+    StdResult, Uint128,
 };
 use cw2::set_contract_version;
 use cw20::Cw20ReceiveMsg;
-use cw_asset::{Asset, AssetInfo, AssetInfoBase};
+use cw_asset::{Asset, AssetInfo, AssetList};
 
 use crate::error::ContractError;
+use crate::helpers::{receive_asset, receive_assets};
 use crate::msg::{
     CallbackMsg, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg, SwapOperation,
-    SwapOperationsListUnchecked,
+    SwapOperationsList, SwapOperationsListUnchecked,
 };
+use crate::state::{ADMIN, PATHS};
 
 const CONTRACT_NAME: &str = "crates.io:cw-dex-router";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -21,10 +23,12 @@ const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 pub fn instantiate(
     deps: DepsMut,
     _env: Env,
-    _info: MessageInfo,
+    info: MessageInfo,
     _msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
+    ADMIN.set(deps, Some(info.sender))?;
+
     Ok(Response::default())
 }
 
@@ -42,16 +46,50 @@ pub fn execute(
             offer_amount,
             minimum_receive,
             to,
-        } => execute_swap_operations(
-            deps,
-            env,
-            info.clone(),
-            info.sender,
-            operations,
-            offer_amount,
+        } => {
+            let api = deps.api;
+            execute_swap_operations(
+                deps,
+                env,
+                info.clone(),
+                info.sender,
+                operations.check(api)?,
+                offer_amount,
+                minimum_receive,
+                to,
+            )
+        }
+        ExecuteMsg::BasketLiquidate {
+            offer_assets,
+            receive_asset,
             minimum_receive,
             to,
-        ),
+        } => {
+            let api = deps.api;
+            basket_liquidate(
+                deps,
+                env,
+                info,
+                offer_assets.check(api, None)?,
+                receive_asset.check(api, None)?,
+                minimum_receive,
+                to,
+            )
+        }
+        ExecuteMsg::UpdatePath {
+            offer_asset,
+            ask_asset,
+            path,
+        } => {
+            let api = deps.api;
+            update_path(
+                deps,
+                info,
+                offer_asset.check(api, None)?,
+                ask_asset.check(api, None)?,
+                path.check(api)?,
+            )
+        }
         ExecuteMsg::Callback(msg) => {
             if info.sender != env.contract.address {
                 return Err(ContractError::Unauthorized);
@@ -85,6 +123,8 @@ pub fn receive_cw20(
 ) -> Result<Response, ContractError> {
     let sender = deps.api.addr_validate(&cw20_msg.sender)?;
 
+    let api = deps.api;
+
     match from_binary(&cw20_msg.msg)? {
         Cw20HookMsg::ExecuteSwapOperations {
             operations,
@@ -95,7 +135,7 @@ pub fn receive_cw20(
             env,
             info,
             sender,
-            operations,
+            operations.check(api)?,
             None,
             minimum_receive,
             to,
@@ -108,7 +148,7 @@ pub fn execute_swap_operations(
     env: Env,
     info: MessageInfo,
     sender: Addr,
-    operations: SwapOperationsListUnchecked,
+    operations: SwapOperationsList,
     offer_amount: Option<Uint128>,
     minimum_receive: Option<Uint128>,
     to: Option<String>,
@@ -116,49 +156,24 @@ pub fn execute_swap_operations(
     //Validate input or use sender address if None
     let recipient = to.map_or(Ok(sender.clone()), |x| deps.api.addr_validate(&x))?;
 
-    //1. Validate operations
-    let operations = operations.check(deps.api)?;
-    let operations_len = operations.0.len();
-
     let target_asset_info = operations.0.last().unwrap().ask_asset_info.clone();
     let offer_asset_info = operations.0.first().unwrap().offer_asset_info.clone();
 
-    //2. Validate sent asset. We only do this if the passed in optional `offer_amount`
+    //1. Validate sent asset. We only do this if the passed in optional `offer_amount`
     //   and in this case we do transfer from on it, given that the offer asset is
     //   a CW20. Otherwise we assume the caller already sent funds and in the first
     //   call of execute_swap_operation, we just use the whole contracts balance.
     let mut msgs: Vec<CosmosMsg> = vec![];
     if let Some(offer_amount) = offer_amount {
-        match offer_asset_info {
-            AssetInfoBase::Cw20(_) => {
-                let msg = Asset::new(offer_asset_info, offer_amount)
-                    .transfer_from_msg(sender, env.contract.address.to_string())?;
-                msgs.push(msg);
-            }
-            AssetInfoBase::Native(denom) => {
-                if !info.funds.contains(&Coin::new(offer_amount.into(), denom)) {
-                    return Err(ContractError::IncorrectNativeAmountSent);
-                }
-            }
-            _ => return Err(ContractError::UnsupportedAssetType),
-        }
+        msgs.extend(receive_asset(
+            &info,
+            &env,
+            &Asset::new(offer_asset_info, offer_amount),
+        )?);
     };
 
     //2. Loop and execute swap operations
-    let mut msgs: Vec<CosmosMsg> = operations
-        .0
-        .into_iter()
-        .enumerate()
-        .map(|(i, operation)| {
-            //Always send assets to self except for last operation
-            let to = if i == operations_len - 1 {
-                recipient.clone()
-            } else {
-                env.contract.address.clone()
-            };
-            CallbackMsg::ExecuteSwapOperation { operation, to }.into_cosmos_msg(&env)
-        })
-        .collect::<Result<Vec<_>, _>>()?;
+    let mut msgs: Vec<CosmosMsg> = operations.into_execute_msgs(&env, recipient.clone())?;
 
     //3. Assert min receive
     if let Some(minimum_receive) = minimum_receive {
@@ -206,6 +221,64 @@ pub fn assert_minimum_receive(
         return Err(ContractError::FailedMinimumReceive);
     }
     Ok(Response::default())
+}
+
+pub fn update_path(
+    deps: DepsMut,
+    info: MessageInfo,
+    offer_asset: AssetInfo,
+    ask_asset: AssetInfo,
+    path: SwapOperationsList,
+) -> Result<Response, ContractError> {
+    ADMIN.assert_admin(deps.as_ref(), &info.sender)?;
+
+    PATHS.save(deps.storage, (offer_asset, ask_asset).into(), &path)?;
+    Ok(Response::default())
+}
+
+pub fn basket_liquidate(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    offer_assets: AssetList,
+    receive_asset: AssetInfo,
+    minimum_receive: Option<Uint128>,
+    to: Option<String>,
+) -> Result<Response, ContractError> {
+    //Validate input or use sender address if None
+    let recipient = to.map_or(Ok(info.sender.clone()), |x| deps.api.addr_validate(&x))?;
+
+    // 1. Assert offer_assets are sent or do TransferFrom on Cw20s
+    let receive_msgs = receive_assets(&info, &env, &offer_assets)?;
+
+    // 2. Loop over offer assets and for each:
+    // Fetch path and call ExecuteMsg::ExecuteSwapOperations
+    let mut msgs = offer_assets
+        .into_iter()
+        .try_fold(vec![], |mut msgs, asset| {
+            let path = PATHS.load(
+                deps.storage,
+                (asset.info.clone(), receive_asset.clone()).into(),
+            )?;
+            msgs.extend(path.into_execute_msgs(&env, recipient.clone())?);
+            Ok::<Vec<_>, ContractError>(msgs)
+        })?;
+
+    //3. Assert min receive
+    if let Some(minimum_receive) = minimum_receive {
+        let recipient_balance = receive_asset.query_balance(&deps.querier, recipient.clone())?;
+        msgs.push(
+            CallbackMsg::AssertMinimumReceive {
+                asset_info: receive_asset,
+                prev_balance: recipient_balance,
+                minimum_receive,
+                recipient,
+            }
+            .into_cosmos_msg(&env)?,
+        );
+    }
+
+    Ok(Response::new().add_messages(receive_msgs))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
