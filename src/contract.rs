@@ -10,10 +10,8 @@ use cw_asset::{Asset, AssetInfo, AssetList};
 
 use crate::error::ContractError;
 use crate::helpers::{receive_asset, receive_assets};
-use crate::msg::{
-    CallbackMsg, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg, SwapOperation,
-    SwapOperationsList, SwapOperationsListUnchecked,
-};
+use crate::msg::{CallbackMsg, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg};
+use crate::operations::{SwapOperation, SwapOperationsList, SwapOperationsListUnchecked};
 use crate::state::{ADMIN, PATHS};
 
 const CONTRACT_NAME: &str = "crates.io:cw-dex-router";

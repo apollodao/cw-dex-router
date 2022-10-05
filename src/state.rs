@@ -3,7 +3,7 @@ use cw_asset::AssetInfo;
 use cw_controllers::Admin;
 use cw_storage_plus::{Key, Map, PrimaryKey};
 
-use crate::msg::SwapOperationsList;
+use crate::operations::SwapOperationsList;
 
 /// As an MVP we hardcode paths for each tuple of assets (offer, ask).
 /// In a future version we want to find the path that produces the highest number
