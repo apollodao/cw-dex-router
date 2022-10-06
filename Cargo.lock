@@ -23,7 +23,7 @@ dependencies = [
 [[package]]
 name = "apollo-proto-rust"
 version = "0.2.0"
-source = "git+https://github.com/apollodao/apollo-proto-rust#c32895a6f1c70337beed43ebc8e59034a8547610"
+source = "git+https://github.com/apollodao/apollo-proto-rust#48538a6f169e0875a353cb1b2a79a7af065aa37e"
 dependencies = [
  "cosmwasm-std",
  "prost 0.11.0",
@@ -31,6 +31,12 @@ dependencies = [
  "schemars",
  "serde",
 ]
+
+[[package]]
+name = "autocfg"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "base16ct"
@@ -249,7 +255,7 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex#f5b321b42b2978dbeb8543e6cb5865161f35170d"
+source = "git+https://github.com/apollodao/cw-dex#ed5410f05f4cb92ec85f056af7e7b593413350c5"
 dependencies = [
  "apollo-proto-rust 0.2.0 (git+https://github.com/apollodao/apollo-proto-rust)",
  "cosmwasm-schema",
@@ -260,6 +266,9 @@ dependencies = [
  "cw-utils 0.15.1",
  "cw20 0.15.1",
  "cw20-base",
+ "num-bigint",
+ "num-rational",
+ "num-traits",
  "osmo-bindings",
  "schemars",
  "serde",
@@ -329,7 +338,7 @@ dependencies = [
 [[package]]
 name = "cw-token"
 version = "0.1.0"
-source = "git+https://github.com/apollodao/cw-token.git#cec6eeffe1e68950ac206c3773d276d9d6f116a3"
+source = "git+https://github.com/apollodao/cw-token.git#3e29648ae249266652bae19f1d380de4fcce8699"
 dependencies = [
  "apollo-proto-rust 0.2.0 (git+https://github.com/apollodao/apollo-proto-rust?tag=v0.2.0)",
  "cosmwasm-schema",
@@ -647,6 +656,48 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "329c933548736bc49fd575ee68c89e8be4d260064184389a5b77517cddd99ffb"
 
 [[package]]
+name = "num-bigint"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f93ab6289c7b344a8a9f60f88d80aa20032336fe78da341afc91c8a2341fc75f"
+dependencies = [
+ "autocfg",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-integer"
+version = "0.1.45"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "225d3389fb3509a24c93f5c29eb6bde2586b98d9f016636dff58d7c6f7569cd9"
+dependencies = [
+ "autocfg",
+ "num-traits",
+]
+
+[[package]]
+name = "num-rational"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0638a1c9d0a3c0914158145bc76cff373a75a627e6ecbfb71cbe6f453a5a19b0"
+dependencies = [
+ "autocfg",
+ "num-bigint",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-traits"
+version = "0.2.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "578ede34cf02f8924ab9447f50c28075b4d3e5b269972345e7e0372b38c6cdcd"
+dependencies = [
+ "autocfg",
+]
+
+[[package]]
 name = "opaque-debug"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -903,9 +954,9 @@ dependencies = [
 
 [[package]]
 name = "signature"
-version = "1.6.3"
+version = "1.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "deb766570a2825fa972bceff0d195727876a9cdf2460ab2e52d455dc2de47fd9"
+checksum = "74233d3b3b2f6d4b006dc19dee745e73e2a6bfb6f93607cd3b02bd5b00797d7c"
 dependencies = [
  "digest 0.10.5",
  "rand_core 0.6.4",

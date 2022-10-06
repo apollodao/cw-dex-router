@@ -280,25 +280,26 @@ pub fn basket_liquidate(
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::SimulateSwapOperations {
             offer_amount,
             operations,
+            sender,
         } => to_binary(&simulate_swap_operations(
             deps,
-            env,
             offer_amount,
             operations,
+            sender,
         )?),
     }
 }
 
 pub fn simulate_swap_operations(
     deps: Deps,
-    _env: Env,
     mut offer_amount: Uint128,
     operations: SwapOperationsListUnchecked,
+    sender: Option<String>,
 ) -> Result<Uint128, ContractError> {
     let operations = operations.check(deps.api)?;
 
@@ -310,6 +311,7 @@ pub fn simulate_swap_operations(
             offer_asset,
             operation.ask_asset_info,
             Uint128::zero(),
+            sender.clone(),
         )?;
     }
 
