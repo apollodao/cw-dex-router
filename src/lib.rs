@@ -1,3 +1,4 @@
+pub mod cfmm_router;
 pub mod contract;
 mod error;
 pub mod helpers;

@@ -1,4 +1,5 @@
-use cosmwasm_std::{OverflowError, StdError};
+use anyhow::Error as AnyhowError;
+use cosmwasm_std::{CheckedFromRatioError, OverflowError, StdError};
 use cw_controllers::AdminError;
 use cw_dex::CwDexError;
 use thiserror::Error;
@@ -15,7 +16,13 @@ pub enum ContractError {
     Overflow(#[from] OverflowError),
 
     #[error("{0}")]
+    CheckedFromRatioError(#[from] CheckedFromRatioError),
+
+    #[error("{0}")]
     AdminError(#[from] AdminError),
+
+    #[error("{0}")]
+    AnyhowError(#[from] AnyhowError),
 
     #[error("Incorrect amount of native token sent. You don't need to pass in offer_amount if using native tokens.")]
     IncorrectNativeAmountSent,

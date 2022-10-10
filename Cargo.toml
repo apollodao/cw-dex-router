@@ -52,6 +52,9 @@ cw-dex = { git = "https://github.com/apollodao/cw-dex" }
 cw-asset = "2.3.0"
 cw20 = "0.15.0"
 cw-controllers = "0.15.0"
+liblbfgs = { path = "../rust-lbfgs" }
+anyhow = "1"
+fixed = { version = "1.19.0", features = ["std", "serde", "serde-str"] }
 
 [dev-dependencies]
 cw-multi-test = "0.15.0"
