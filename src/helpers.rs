@@ -76,7 +76,7 @@ impl CwDexRouter {
     pub fn basket_liquidate_msgs(
         &self,
         offer_assets: AssetList,
-        receive_asset: AssetInfo,
+        receive_asset: &AssetInfo,
         minimum_receive: Option<Uint128>,
         to: Option<String>,
     ) -> StdResult<Vec<CosmosMsg>> {
