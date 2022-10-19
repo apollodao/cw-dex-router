@@ -294,6 +294,14 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             operations,
             sender,
         )?),
+        QueryMsg::PathForPair {
+            offer_asset,
+            ask_asset,
+        } => to_binary(&query_path_for_pair(
+            deps,
+            offer_asset.check(deps.api, None)?,
+            ask_asset.check(deps.api, None)?,
+        )?),
         QueryMsg::SupportedOfferAssets { ask_asset } => {
             to_binary(&query_supported_offer_assets(deps, ask_asset)?)
         }
@@ -321,6 +329,16 @@ pub fn simulate_swap_operations(
     }
 
     Ok(offer_amount)
+}
+
+pub fn query_path_for_pair(
+    deps: Deps,
+    offer_asset: AssetInfo,
+    ask_asset: AssetInfo,
+) -> Result<SwapOperationsList, ContractError> {
+    PATHS
+        .load(deps.storage, (offer_asset.into(), ask_asset.into()))
+        .map_err(|_| ContractError::NoPathFound)
 }
 
 pub fn query_supported_offer_assets(

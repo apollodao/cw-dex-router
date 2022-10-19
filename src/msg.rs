@@ -3,7 +3,7 @@ use cosmwasm_std::{wasm_execute, Addr, CosmosMsg, Empty, Env, Uint128};
 use cw20::Cw20ReceiveMsg;
 use cw_asset::{AssetInfo, AssetInfoUnchecked, AssetListUnchecked};
 
-use crate::operations::{SwapOperation, SwapOperationsListUnchecked};
+use crate::operations::{SwapOperation, SwapOperationsList, SwapOperationsListUnchecked};
 use crate::ContractError;
 
 pub type InstantiateMsg = Empty;
@@ -72,6 +72,13 @@ pub enum QueryMsg {
         // For some reason osmosis requires this to simulate a swap...
         // TODO: Find a way around this and remove it from the API.
         sender: Option<String>,
+    },
+
+    /// Returns all the current path for a given (offer_asset, ask_asset) pair.
+    #[returns(SwapOperationsList)]
+    PathForPair {
+        offer_asset: AssetInfoUnchecked,
+        ask_asset: AssetInfoUnchecked,
     },
 
     /// Returns all the assets from which there are paths to a given ask asset.
