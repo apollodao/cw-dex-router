@@ -6,7 +6,7 @@ use cw_asset::{Asset, AssetInfo, AssetInfoBase, AssetList};
 
 use cosmwasm_std::{
     to_binary, Addr, Api, Coin, CosmosMsg, Env, MessageInfo, QuerierWrapper, QueryRequest,
-    StdError, StdResult, Uint128, WasmMsg,
+    StdError, StdResult, Uint128, WasmMsg, WasmQuery,
 };
 
 use crate::{
@@ -149,12 +149,40 @@ impl CwDexRouter {
         operations: &SwapOperationsList,
         sender: Option<String>,
     ) -> StdResult<Uint128> {
-        querier.query(&QueryRequest::Wasm(cosmwasm_std::WasmQuery::Smart {
+        querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
             msg: to_binary(&QueryMsg::SimulateSwapOperations {
                 offer_amount,
                 operations: operations.into(),
                 sender,
+            })?,
+        }))
+    }
+
+    pub fn query_path_for_pair(
+        &self,
+        querier: &QuerierWrapper,
+        offer_asset: AssetInfo,
+        ask_asset: AssetInfo,
+    ) -> StdResult<SwapOperationsList> {
+        querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+            contract_addr: self.0.to_string(),
+            msg: to_binary(&QueryMsg::PathForPair {
+                offer_asset: offer_asset.into(),
+                ask_asset: ask_asset.into(),
+            })?,
+        }))
+    }
+
+    pub fn query_supported_offer_assets(
+        &self,
+        querier: &QuerierWrapper,
+        ask_asset: AssetInfo,
+    ) -> StdResult<Vec<AssetInfo>> {
+        querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+            contract_addr: self.0.to_string(),
+            msg: to_binary(&QueryMsg::SupportedOfferAssets {
+                ask_asset: ask_asset.into(),
             })?,
         }))
     }
