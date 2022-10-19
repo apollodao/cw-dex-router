@@ -50,7 +50,7 @@ schemars = "0.8.10"
 serde = { version = "1.0.144", default-features = false, features = ["derive"] }
 thiserror = { version = "1.0.31" }
 cw2 = "0.15.0"
-cw-dex = { git = "https://github.com/apollodao/cw-dex" }
+cw-dex = { git = "https://github.com/apollodao/cw-dex", branch = "dev/get-pool-for-lp-token" }
 cw-asset = "2.3.0"
 cw20 = "0.15.0"
 cw-controllers = "0.15.0"

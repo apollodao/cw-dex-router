@@ -255,7 +255,7 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex#ed5410f05f4cb92ec85f056af7e7b593413350c5"
+source = "git+https://github.com/apollodao/cw-dex?branch=dev/get-pool-for-lp-token#7c4b7f02a9045b2abcb9c8b72da2de9f34e67217"
 dependencies = [
  "apollo-proto-rust 0.2.0 (git+https://github.com/apollodao/apollo-proto-rust)",
  "cosmwasm-schema",

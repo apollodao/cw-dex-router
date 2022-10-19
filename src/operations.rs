@@ -3,26 +3,8 @@ use crate::ContractError;
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, Api, CosmosMsg, Deps, Env, Response, StdResult, Uint128};
 use cw_asset::{Asset, AssetInfoBase};
-use cw_dex::osmosis::OsmosisPool;
-use cw_dex::Pool as PoolTrait;
-
-/// An enum with all known variants that implement the cw_dex::Pool trait.
-/// The ideal solution would of course instead be to use a trait object so that
-/// the caller can pass in any type that implements the Pool trait, but trait
-/// objects require us not to implement the Sized trait, which cw_serde requires.
-#[cw_serde]
-#[derive(Copy)]
-pub enum Pool {
-    Osmosis(OsmosisPool),
-}
-
-impl Pool {
-    pub fn as_trait(&self) -> &dyn PoolTrait {
-        match self {
-            Pool::Osmosis(x) => x as &dyn PoolTrait,
-        }
-    }
-}
+use cw_dex::traits::Pool as PoolTrait;
+use cw_dex::Pool;
 
 #[cw_serde]
 pub struct SwapOperationBase<T> {
@@ -55,7 +37,7 @@ impl SwapOperation {
     ) -> Result<Response, ContractError> {
         let offer_asset = Asset::new(self.offer_asset_info.clone(), offer_amount);
         let minimum_receive = minimum_receive.unwrap_or_default();
-        Ok(self.pool.as_trait().swap(
+        Ok(self.pool.swap(
             deps,
             offer_asset,
             self.ask_asset_info.clone(),
