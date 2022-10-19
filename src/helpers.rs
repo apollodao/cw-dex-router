@@ -162,8 +162,8 @@ impl CwDexRouter {
     pub fn query_path_for_pair(
         &self,
         querier: &QuerierWrapper,
-        offer_asset: AssetInfo,
-        ask_asset: AssetInfo,
+        offer_asset: &AssetInfo,
+        ask_asset: &AssetInfo,
     ) -> StdResult<SwapOperationsList> {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
@@ -177,7 +177,7 @@ impl CwDexRouter {
     pub fn query_supported_offer_assets(
         &self,
         querier: &QuerierWrapper,
-        ask_asset: AssetInfo,
+        ask_asset: &AssetInfo,
     ) -> StdResult<Vec<AssetInfo>> {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
