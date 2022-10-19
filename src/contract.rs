@@ -1,12 +1,12 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    from_binary, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response,
-    StdResult, Uint128,
+    from_binary, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Order,
+    Response, StdResult, Uint128,
 };
 use cw2::set_contract_version;
 use cw20::Cw20ReceiveMsg;
-use cw_asset::{Asset, AssetInfo, AssetList};
+use cw_asset::{Asset, AssetInfo, AssetInfoUnchecked, AssetList};
 
 use crate::error::ContractError;
 use crate::helpers::{receive_asset, receive_assets};
@@ -294,6 +294,9 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             operations,
             sender,
         )?),
+        QueryMsg::SupportedOfferAssets { ask_asset } => {
+            to_binary(&query_supported_offer_assets(deps, ask_asset)?)
+        }
     }
 }
 
@@ -318,6 +321,20 @@ pub fn simulate_swap_operations(
     }
 
     Ok(offer_amount)
+}
+
+pub fn query_supported_offer_assets(
+    deps: Deps,
+    ask_asset: AssetInfoUnchecked,
+) -> Result<Vec<AssetInfo>, ContractError> {
+    let mut offer_assets: Vec<AssetInfo> = vec![];
+    for x in PATHS.range(deps.storage, None, None, Order::Ascending) {
+        let ((offer_asset, path_ask_asset), _) = x?;
+        if path_ask_asset == ask_asset {
+            offer_assets.push(offer_asset.check(deps.api, None)?);
+        }
+    }
+    Ok(offer_assets)
 }
 
 //TODO: Write tests

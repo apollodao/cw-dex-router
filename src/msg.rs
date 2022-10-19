@@ -73,6 +73,10 @@ pub enum QueryMsg {
         // TODO: Find a way around this and remove it from the API.
         sender: Option<String>,
     },
+
+    /// Returns all the assets from which there are paths to a given ask asset.
+    #[returns(Vec<AssetInfo>)]
+    SupportedOfferAssets { ask_asset: AssetInfoUnchecked },
 }
 
 #[cw_serde]
