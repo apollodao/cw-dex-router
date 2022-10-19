@@ -186,6 +186,19 @@ impl CwDexRouter {
             })?,
         }))
     }
+
+    pub fn query_supported_ask_assets(
+        &self,
+        querier: &QuerierWrapper,
+        offer_asset: &AssetInfo,
+    ) -> StdResult<Vec<AssetInfo>> {
+        querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+            contract_addr: self.0.to_string(),
+            msg: to_binary(&QueryMsg::SupportedAskAssets {
+                offer_asset: offer_asset.into(),
+            })?,
+        }))
+    }
 }
 
 /// Assert that a specific native token in the form of an `Asset` was sent to the contract.

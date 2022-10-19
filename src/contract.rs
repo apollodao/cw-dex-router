@@ -305,6 +305,9 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::SupportedOfferAssets { ask_asset } => {
             to_binary(&query_supported_offer_assets(deps, ask_asset)?)
         }
+        QueryMsg::SupportedAskAssets { offer_asset } => {
+            to_binary(&query_supported_ask_assets(deps, offer_asset)?)
+        }
     }
 }
 
@@ -353,6 +356,20 @@ pub fn query_supported_offer_assets(
         }
     }
     Ok(offer_assets)
+}
+
+pub fn query_supported_ask_assets(
+    deps: Deps,
+    offer_asset: AssetInfoUnchecked,
+) -> Result<Vec<AssetInfo>, ContractError> {
+    let mut ask_assets: Vec<AssetInfo> = vec![];
+    for x in PATHS.range(deps.storage, None, None, Order::Ascending) {
+        let ((path_offer_asset, ask_asset), _) = x?;
+        if path_offer_asset == offer_asset {
+            ask_assets.push(ask_asset.check(deps.api, None)?);
+        }
+    }
+    Ok(ask_assets)
 }
 
 //TODO: Write tests

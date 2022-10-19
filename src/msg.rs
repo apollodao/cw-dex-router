@@ -84,6 +84,10 @@ pub enum QueryMsg {
     /// Returns all the assets from which there are paths to a given ask asset.
     #[returns(Vec<AssetInfo>)]
     SupportedOfferAssets { ask_asset: AssetInfoUnchecked },
+
+    /// Returns all the assets to which there are paths from a given offer asset.
+    #[returns(Vec<AssetInfo>)]
+    SupportedAskAssets { offer_asset: AssetInfoUnchecked },
 }
 
 #[cw_serde]
