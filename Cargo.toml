@@ -42,7 +42,9 @@ optimize = """docker run --rm -v "$(pwd)":/code \
 [dependencies]
 cosmwasm-std = "1.1.0"
 cosmwasm-storage = "1.1.1"
-cw-storage-plus = "0.15.0"
+# We must use an old version of cw-storage-plus because cw-asset uses this version
+# TODO: Make PR to cw-asset to update to latest version of cw-storage-plus
+cw-storage-plus = "0.13.4"
 cosmwasm-schema = "1.1.1"
 schemars = "0.8.10"
 serde = { version = "1.0.144", default-features = false, features = ["derive"] }

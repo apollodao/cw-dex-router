@@ -230,7 +230,7 @@ pub fn update_path(
 ) -> Result<Response, ContractError> {
     ADMIN.assert_admin(deps.as_ref(), &info.sender)?;
 
-    PATHS.save(deps.storage, (offer_asset, ask_asset).into(), &path)?;
+    PATHS.save(deps.storage, (offer_asset.into(), ask_asset.into()), &path)?;
     Ok(Response::default())
 }
 
@@ -254,10 +254,12 @@ pub fn basket_liquidate(
     let mut msgs = offer_assets
         .into_iter()
         .try_fold(vec![], |mut msgs, asset| {
-            let path = PATHS.load(
-                deps.storage,
-                (asset.info.clone(), receive_asset.clone()).into(),
-            )?;
+            let path = PATHS
+                .load(
+                    deps.storage,
+                    (asset.info.clone().into(), receive_asset.clone().into()),
+                )
+                .map_err(|_| ContractError::NoPathFound)?;
             msgs.extend(path.into_execute_msgs(&env, recipient.clone())?);
             Ok::<Vec<_>, ContractError>(msgs)
         })?;

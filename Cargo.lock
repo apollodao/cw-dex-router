@@ -286,7 +286,7 @@ dependencies = [
  "cw-controllers",
  "cw-dex",
  "cw-multi-test",
- "cw-storage-plus 0.15.1",
+ "cw-storage-plus 0.13.4",
  "cw2",
  "cw20 0.15.1",
  "schemars",

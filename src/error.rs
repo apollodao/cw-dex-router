@@ -34,6 +34,9 @@ pub enum ContractError {
 
     #[error("Did not receive minimum amount")]
     FailedMinimumReceive,
+
+    #[error("No path found for the given assets")]
+    NoPathFound,
 }
 
 impl From<ContractError> for StdError {
