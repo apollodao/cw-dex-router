@@ -23,7 +23,7 @@ dependencies = [
 [[package]]
 name = "apollo-proto-rust"
 version = "0.2.0"
-source = "git+https://github.com/apollodao/apollo-proto-rust#48538a6f169e0875a353cb1b2a79a7af065aa37e"
+source = "git+https://github.com/apollodao/apollo-proto-rust?tag=v0.3.0#3e77287172d7e96485465f2288d5c0eafc80f9c5"
 dependencies = [
  "cosmwasm-std",
  "prost 0.11.0",
@@ -255,9 +255,9 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex?branch=dev/get-pool-for-lp-token#7c4b7f02a9045b2abcb9c8b72da2de9f34e67217"
+source = "git+https://github.com/apollodao/cw-dex?branch=dev/get-pool-for-lp-token#0e8d2eba2885c37bb3ff5e987bd0f5582aa1c910"
 dependencies = [
- "apollo-proto-rust 0.2.0 (git+https://github.com/apollodao/apollo-proto-rust)",
+ "apollo-proto-rust 0.2.0 (git+https://github.com/apollodao/apollo-proto-rust?tag=v0.3.0)",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
