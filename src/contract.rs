@@ -326,7 +326,6 @@ pub fn simulate_swap_operations(
             deps,
             offer_asset,
             operation.ask_asset_info,
-            Uint128::zero(),
             sender.clone(),
         )?;
     }

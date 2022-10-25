@@ -22,7 +22,7 @@ impl SwapOperationUnchecked {
         Ok(SwapOperation {
             ask_asset_info: self.ask_asset_info.check(api, None)?,
             offer_asset_info: self.offer_asset_info.check(api, None)?,
-            pool: self.pool,
+            pool: self.pool.clone(),
         })
     }
 }
@@ -52,7 +52,7 @@ impl From<&SwapOperation> for SwapOperationUnchecked {
         Self {
             ask_asset_info: checked.ask_asset_info.clone().into(),
             offer_asset_info: checked.offer_asset_info.clone().into(),
-            pool: checked.pool,
+            pool: checked.pool.clone(),
         }
     }
 }
