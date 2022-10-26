@@ -257,14 +257,13 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex#763a593fec34bf6f15d77b7ab49dec32a0fe6ca0"
+source = "git+https://github.com/apollodao/cw-dex#6cdd13b659b0a793f32c56ff2bb0c93ae992492f"
 dependencies = [
  "apollo-proto-rust",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
  "cw-storage-plus 0.15.1",
- "cw-token",
  "cw-utils 0.13.4",
  "cw-utils 0.15.1",
  "cw20 0.10.3",
@@ -373,24 +372,6 @@ dependencies = [
  "cosmwasm-std",
  "schemars",
  "serde",
-]
-
-[[package]]
-name = "cw-token"
-version = "0.1.0"
-source = "git+https://github.com/apollodao/cw-token.git#61b49d8a05e503d50890abfe43ce161ffe4cc08d"
-dependencies = [
- "apollo-proto-rust",
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-asset",
- "cw-storage-plus 0.15.1",
- "cw-utils 0.15.1",
- "cw20 0.15.1",
- "cw20-base 0.15.1",
- "schemars",
- "serde",
- "thiserror",
 ]
 
 [[package]]
