@@ -257,7 +257,7 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex#cb6c6832d8188a5bf2b7151acc9d5721ba1917b6"
+source = "git+https://github.com/apollodao/cw-dex#763a593fec34bf6f15d77b7ab49dec32a0fe6ca0"
 dependencies = [
  "apollo-proto-rust",
  "cosmwasm-schema",
@@ -802,9 +802,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.136"
+version = "0.2.137"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55edcf6c0bb319052dea84732cf99db461780fd5e8d3eb46ab6ff312ab31f197"
+checksum = "fc7fcc620a3bff7cdd7a365be3376c97191aeaccc2a603e600951e452615bf89"
 
 [[package]]
 name = "num-bigint"

@@ -199,9 +199,9 @@ pub fn execute_swap_operation(
     //We use all of the contracts balance.
     let offer_amount = operation
         .offer_asset_info
-        .query_balance(&deps.querier, env.contract.address)?;
+        .query_balance(&deps.querier, env.contract.address.to_string())?;
 
-    operation.to_cosmos_response(deps.as_ref(), offer_amount, None, to)
+    operation.to_cosmos_response(deps.as_ref(), &env, offer_amount, None, to)
 }
 
 pub fn assert_minimum_receive(

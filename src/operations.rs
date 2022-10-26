@@ -31,19 +31,36 @@ impl SwapOperation {
     pub fn to_cosmos_response(
         &self,
         deps: Deps,
+        env: &Env,
         offer_amount: Uint128,
         minimum_receive: Option<Uint128>,
         recipient: Addr,
     ) -> Result<Response, ContractError> {
         let offer_asset = Asset::new(self.offer_asset_info.clone(), offer_amount);
         let minimum_receive = minimum_receive.unwrap_or_default();
-        Ok(self.pool.swap(
+
+        let mut response = self.pool.swap(
             deps,
-            offer_asset,
+            env,
+            offer_asset.clone(),
             self.ask_asset_info.clone(),
             minimum_receive,
-            recipient,
-        )?)
+        )?;
+
+        if recipient != env.contract.address {
+            // Simulate swap to know how much will be returned, then add message
+            // to send tokens to recipient
+            let receive_amount = self.pool.simulate_swap(
+                deps,
+                offer_asset,
+                self.ask_asset_info.clone(),
+                Some(env.contract.address.to_string()),
+            )?;
+            let receive_asset = Asset::new(self.ask_asset_info.clone(), receive_amount);
+            response = response.add_message(receive_asset.transfer_msg(recipient)?);
+        }
+
+        Ok(response)
     }
 }
 
