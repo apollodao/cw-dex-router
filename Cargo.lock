@@ -268,18 +268,18 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex#2db655c8186e46ef44441e91583643bd65f8fc19"
+source = "git+https://github.com/apollodao/cw-dex#a5d8a64099dbe846d64c0f8767bf25719889a083"
 dependencies = [
  "apollo-proto-rust",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
- "cw-storage-plus 0.15.1",
+ "cw-storage-plus 0.16.0",
  "cw-utils 0.13.4",
  "cw-utils 0.16.0",
  "cw20 0.10.3",
- "cw20 0.15.1",
- "cw20-base 0.15.1",
+ "cw20 0.13.4",
+ "cw20-base 0.16.0",
  "cw20-stake",
  "num-bigint",
  "num-rational",
@@ -562,6 +562,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "cw20"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a45a8794a5dd33b66af34caee52a7beceb690856adcc1682b6e3db88b2cdee62"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-utils 0.16.0",
+ "schemars",
+ "serde",
+]
+
+[[package]]
 name = "cw20-base"
 version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -595,16 +608,16 @@ dependencies = [
 
 [[package]]
 name = "cw20-base"
-version = "0.15.1"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0909c56d0c14601fbdc69382189799482799dcad87587926aec1f3aa321abc41"
+checksum = "61d826fa1084d026d0abdb54faa5956972efa3a9053473bfcefb5388960aab69"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
- "cw-storage-plus 0.15.1",
- "cw-utils 0.15.1",
- "cw2 0.15.1",
- "cw20 0.15.1",
+ "cw-storage-plus 0.16.0",
+ "cw-utils 0.16.0",
+ "cw2 0.16.0",
+ "cw20 0.16.0",
  "schemars",
  "semver",
  "serde",
