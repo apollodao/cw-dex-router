@@ -6,7 +6,7 @@ use cosmwasm_std::{
 };
 use cw2::set_contract_version;
 use cw20::Cw20ReceiveMsg;
-use cw_asset::{Asset, AssetInfo, AssetInfoUnchecked, AssetList};
+use cw_asset::{Asset, AssetInfo, AssetInfoUnchecked, AssetList, AssetListUnchecked};
 
 use crate::error::ContractError;
 use crate::helpers::{receive_asset, receive_assets};
@@ -294,6 +294,16 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             operations,
             sender,
         )?),
+        QueryMsg::SimulateBasketLiquidate {
+            offer_assets,
+            receive_asset,
+            sender,
+        } => to_binary(&simulate_basket_liquidate(
+            deps,
+            offer_assets,
+            receive_asset,
+            sender,
+        )?),
         QueryMsg::PathForPair {
             offer_asset,
             ask_asset,
@@ -331,6 +341,37 @@ pub fn simulate_swap_operations(
     }
 
     Ok(offer_amount)
+}
+
+pub fn simulate_basket_liquidate(
+    deps: Deps,
+    offer_assets: AssetListUnchecked,
+    receive_asset: AssetInfoUnchecked,
+    sender: Option<String>,
+) -> Result<Uint128, ContractError> {
+    let offer_assets = offer_assets.check(deps.api, None)?;
+    let receive_asset = receive_asset.check(deps.api, None)?;
+
+    let mut receive_amount = Uint128::zero();
+
+    // Loop over offer assets and fetch path for each
+    let paths = offer_assets
+        .into_iter()
+        .map(|asset| {
+            Ok::<_, ContractError>((
+                asset.clone(),
+                query_path_for_pair(deps, asset.info.clone(), receive_asset.clone())?,
+            ))
+        })
+        .collect::<Result<Vec<(Asset, SwapOperationsList)>, _>>()?;
+
+    // Loop over paths and simulate swap operations
+    for (asset, path) in paths {
+        receive_amount +=
+            simulate_swap_operations(deps, asset.amount, path.into(), sender.clone())?;
+    }
+
+    Ok(receive_amount)
 }
 
 pub fn query_path_for_pair(

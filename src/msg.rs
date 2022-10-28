@@ -74,6 +74,15 @@ pub enum QueryMsg {
         sender: Option<String>,
     },
 
+    #[returns(Uint128)]
+    SimulateBasketLiquidate {
+        offer_assets: AssetListUnchecked,
+        receive_asset: AssetInfoUnchecked,
+        // For some reason osmosis requires this to simulate a swap...
+        // TODO: Find a way around this and remove it from the API.
+        sender: Option<String>,
+    },
+
     /// Returns all the current path for a given (offer_asset, ask_asset) pair.
     #[returns(SwapOperationsList)]
     PathForPair {
