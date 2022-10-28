@@ -142,7 +142,7 @@ impl CwDexRouter {
         )
     }
 
-    pub fn query_simulate_swap_operations(
+    pub fn simulate_swap_operations(
         &self,
         querier: &QuerierWrapper,
         offer_amount: Uint128,
@@ -154,6 +154,23 @@ impl CwDexRouter {
             msg: to_binary(&QueryMsg::SimulateSwapOperations {
                 offer_amount,
                 operations: operations.into(),
+                sender,
+            })?,
+        }))
+    }
+
+    pub fn simulate_basket_liquidate(
+        &self,
+        querier: &QuerierWrapper,
+        offer_assets: AssetList,
+        receive_asset: &AssetInfo,
+        sender: Option<String>,
+    ) -> StdResult<Uint128> {
+        querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+            contract_addr: self.0.to_string(),
+            msg: to_binary(&QueryMsg::SimulateBasketLiquidate {
+                offer_assets: offer_assets.into(),
+                receive_asset: receive_asset.into(),
                 sender,
             })?,
         }))
