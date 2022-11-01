@@ -20,15 +20,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "216261ddc8289130e551ddcd5ce8a064710c0d064a4d2895c67151c92b5443f6"
 
 [[package]]
-name = "apollo-proto-rust"
-version = "0.2.0"
-source = "git+https://github.com/apollodao/apollo-proto-rust?tag=v0.3.0#3e77287172d7e96485465f2288d5c0eafc80f9c5"
+name = "apollo-utils"
+version = "0.1.0"
+source = "git+https://github.com/apollodao/apollo-utils.git#b9caacbb112f92eaf486694759d5cf7de8af172d"
 dependencies = [
  "cosmwasm-std",
- "prost 0.11.0",
- "prost-types",
- "schemars",
- "serde",
+ "cw-asset",
+ "cw20 0.16.0",
 ]
 
 [[package]]
@@ -90,6 +88,16 @@ name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
+name = "chrono"
+version = "0.4.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfd4d1b31faaa3a89d7934dbded3111da0d2ef28e3ebccdb4f0179f5929d1ef1"
+dependencies = [
+ "num-integer",
+ "num-traits",
+]
 
 [[package]]
 name = "const-oid"
@@ -268,9 +276,9 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex#a5d8a64099dbe846d64c0f8767bf25719889a083"
+source = "git+https://github.com/apollodao/cw-dex#58491578c7c71459ff727ec7a48334261304a712"
 dependencies = [
- "apollo-proto-rust",
+ "apollo-utils",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
@@ -285,6 +293,8 @@ dependencies = [
  "num-rational",
  "num-traits",
  "osmo-bindings",
+ "osmosis-std",
+ "prost 0.11.0",
  "schemars",
  "serde",
  "stake-cw20-external-rewards",
@@ -745,9 +755,9 @@ dependencies = [
 
 [[package]]
 name = "ff"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df689201f395c6b90dfe87127685f8dbfc083a5e779e613575d8bd7314300c3e"
+checksum = "d013fc25338cc558c5c2cfbad646908fb23591e2404481826742b651c9af7160"
 dependencies = [
  "rand_core 0.6.4",
  "subtle",
@@ -892,9 +902,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.15.0"
+version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e82dad04139b71a90c080c8463fe0dc7902db5192d939bd0950f074d014339e1"
+checksum = "86f0b0d4bf799edbc74508c1e8bf170ff5f41238e5f8225603ca7caaae2b7860"
 
 [[package]]
 name = "opaque-debug"
@@ -911,6 +921,32 @@ dependencies = [
  "cosmwasm-std",
  "schemars",
  "serde",
+]
+
+[[package]]
+name = "osmosis-std"
+version = "0.12.0"
+source = "git+https://github.com/osmosis-labs/osmosis-rust#28ffd12efce20ee36bb78505e5af136b26344b70"
+dependencies = [
+ "chrono",
+ "cosmwasm-std",
+ "osmosis-std-derive",
+ "prost 0.11.0",
+ "prost-types",
+ "schemars",
+ "serde",
+ "serde-cw-value",
+]
+
+[[package]]
+name = "osmosis-std-derive"
+version = "0.12.0"
+source = "git+https://github.com/osmosis-labs/osmosis-rust#28ffd12efce20ee36bb78505e5af136b26344b70"
+dependencies = [
+ "itertools",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -1080,6 +1116,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d193d69bae983fc11a79df82342761dfbf28a99fc8d203dca4c3c1b590948965"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde-cw-value"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a75d32da6b8ed758b7d850b6c3c08f1d7df51a4df3cb201296e63e34a78e99d4"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
