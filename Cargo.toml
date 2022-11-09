@@ -42,18 +42,16 @@ optimize = """docker run --rm -v "$(pwd)":/code \
 [dependencies]
 cosmwasm-std = "1.1.0"
 cosmwasm-storage = "1.1.1"
-# We must use an old version of cw-storage-plus because cw-asset uses this version
-# TODO: Make PR to cw-asset to update to latest version of cw-storage-plus
 cosmwasm-schema = "1.1.1"
-cw-asset = "2.3.0"
-cw-controllers = "0.15.0"
+cw-asset = "2.4.0"
+cw-controllers = "0.16"
 cw-dex = {git = "https://github.com/apollodao/cw-dex"}
-cw-storage-plus = "0.13.4"
-cw2 = "0.15.0"
-cw20 = "0.15.0"
+cw-storage-plus = "0.16"
+cw2 = "0.16"
+cw20 = "0.16"
 schemars = "0.8.10"
 serde = {version = "1.0.144", default-features = false, features = ["derive"]}
 thiserror = {version = "1.0.31"}
 
 [dev-dependencies]
-cw-multi-test = "0.15.0"
+cw-multi-test = "0.16.0"
