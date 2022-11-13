@@ -45,7 +45,7 @@ cosmwasm-storage = "1.1.1"
 cosmwasm-schema = "1.1.1"
 cw-asset = "2.4.0"
 cw-controllers = "0.16"
-cw-dex = {git = "https://github.com/apollodao/cw-dex"}
+cw-dex = { git = "https://github.com/apollodao/cw-dex", branch = "feat/copy-dao-dao-structs" }
 cw-storage-plus = "0.16"
 cw2 = "0.16"
 cw20 = "0.16"
