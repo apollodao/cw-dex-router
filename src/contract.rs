@@ -68,8 +68,8 @@ pub fn execute(
                 deps,
                 env,
                 info,
-                offer_assets.check(api, None)?,
-                receive_asset.check(api, None)?,
+                offer_assets.check(api)?,
+                receive_asset.check(api)?,
                 minimum_receive,
                 to,
             )
@@ -83,8 +83,8 @@ pub fn execute(
             update_path(
                 deps,
                 info,
-                offer_asset.check(api, None)?,
-                ask_asset.check(api, None)?,
+                offer_asset.check(api)?,
+                ask_asset.check(api)?,
                 path.check(api)?,
             )
         }
@@ -309,8 +309,8 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             ask_asset,
         } => to_binary(&query_path_for_pair(
             deps,
-            offer_asset.check(deps.api, None)?,
-            ask_asset.check(deps.api, None)?,
+            offer_asset.check(deps.api)?,
+            ask_asset.check(deps.api)?,
         )?),
         QueryMsg::SupportedOfferAssets { ask_asset } => {
             to_binary(&query_supported_offer_assets(deps, ask_asset)?)
@@ -349,8 +349,8 @@ pub fn simulate_basket_liquidate(
     receive_asset: AssetInfoUnchecked,
     sender: Option<String>,
 ) -> Result<Uint128, ContractError> {
-    let offer_assets = offer_assets.check(deps.api, None)?;
-    let receive_asset = receive_asset.check(deps.api, None)?;
+    let offer_assets = offer_assets.check(deps.api)?;
+    let receive_asset = receive_asset.check(deps.api)?;
 
     let mut receive_amount = Uint128::zero();
 
@@ -391,8 +391,8 @@ pub fn query_supported_offer_assets(
     let mut offer_assets: Vec<AssetInfo> = vec![];
     for x in PATHS.range(deps.storage, None, None, Order::Ascending) {
         let ((offer_asset, path_ask_asset), _) = x?;
-        if path_ask_asset == ask_asset {
-            offer_assets.push(offer_asset.check(deps.api, None)?);
+        if path_ask_asset.as_bytes() == ask_asset.to_string().as_bytes() {
+            offer_assets.push(offer_asset.into());
         }
     }
     Ok(offer_assets)
@@ -405,8 +405,8 @@ pub fn query_supported_ask_assets(
     let mut ask_assets: Vec<AssetInfo> = vec![];
     for x in PATHS.range(deps.storage, None, None, Order::Ascending) {
         let ((path_offer_asset, ask_asset), _) = x?;
-        if path_offer_asset == offer_asset {
-            ask_assets.push(ask_asset.check(deps.api, None)?);
+        if path_offer_asset.as_bytes() == offer_asset.to_string().as_bytes() {
+            ask_assets.push(ask_asset.into());
         }
     }
     Ok(ask_assets)
