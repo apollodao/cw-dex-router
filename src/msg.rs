@@ -84,7 +84,7 @@ pub enum QueryMsg {
     },
 
     /// Returns all the current path for a given (offer_asset, ask_asset) pair.
-    #[returns(SwapOperationsList)]
+    #[returns(crate::operations::SwapOperationsList)]
     PathForPair {
         offer_asset: AssetInfoUnchecked,
         ask_asset: AssetInfoUnchecked,
