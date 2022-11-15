@@ -3,7 +3,7 @@ use cosmwasm_std::{wasm_execute, Addr, CosmosMsg, Empty, Env, Uint128};
 use cw20::Cw20ReceiveMsg;
 use cw_asset::{AssetInfo, AssetInfoUnchecked, AssetListUnchecked};
 
-use crate::operations::{SwapOperation, SwapOperationsList, SwapOperationsListUnchecked};
+use crate::operations::{SwapOperation, SwapOperationsListUnchecked};
 use crate::ContractError;
 
 pub type InstantiateMsg = Empty;

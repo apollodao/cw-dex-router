@@ -43,7 +43,7 @@ optimize = """docker run --rm -v "$(pwd)":/code \
 cosmwasm-std = "1.1.0"
 cosmwasm-storage = "1.1.1"
 cosmwasm-schema = "1.1.1"
-cw-asset = { branch = "feat/assetinfokey", git="https://github.com/apollodao/cw-asset.git" }
+cw-asset = { git="https://github.com/apollodao/cw-asset.git" }
 cw-controllers = "0.16"
 cw-dex = {git = "https://github.com/apollodao/cw-dex"}
 cw-storage-plus = "0.16"

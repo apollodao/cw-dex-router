@@ -245,7 +245,6 @@ pub fn receive_asset(info: &MessageInfo, env: &Env, asset: &Asset) -> StdResult<
             assert_native_token_received(info, asset)?;
             Ok(vec![])
         }
-        _ => Err(StdError::generic_err("Unsupported asset type")),
     }
 }
 
