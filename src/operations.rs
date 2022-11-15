@@ -20,8 +20,8 @@ pub type SwapOperation = SwapOperationBase<Addr>;
 impl SwapOperationUnchecked {
     pub fn check(&self, api: &dyn Api) -> StdResult<SwapOperation> {
         Ok(SwapOperation {
-            ask_asset_info: self.ask_asset_info.check(api, None)?,
-            offer_asset_info: self.offer_asset_info.check(api, None)?,
+            ask_asset_info: self.ask_asset_info.check(api)?,
+            offer_asset_info: self.offer_asset_info.check(api)?,
             pool: self.pool.clone(),
         })
     }

@@ -115,7 +115,7 @@ impl CwDexRouter {
         let swap_msg = self.call(
             ExecuteMsg::BasketLiquidate {
                 offer_assets: offer_assets.into(),
-                receive_asset: receive_asset.into(),
+                receive_asset: receive_asset.to_owned().into(),
                 minimum_receive,
                 to,
             },
@@ -170,7 +170,7 @@ impl CwDexRouter {
             contract_addr: self.0.to_string(),
             msg: to_binary(&QueryMsg::SimulateBasketLiquidate {
                 offer_assets: offer_assets.into(),
-                receive_asset: receive_asset.into(),
+                receive_asset: receive_asset.to_owned().into(),
                 sender,
             })?,
         }))
@@ -185,8 +185,8 @@ impl CwDexRouter {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
             msg: to_binary(&QueryMsg::PathForPair {
-                offer_asset: offer_asset.into(),
-                ask_asset: ask_asset.into(),
+                offer_asset: offer_asset.to_owned().into(),
+                ask_asset: ask_asset.to_owned().into(),
             })?,
         }))
     }
@@ -199,7 +199,7 @@ impl CwDexRouter {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
             msg: to_binary(&QueryMsg::SupportedOfferAssets {
-                ask_asset: ask_asset.into(),
+                ask_asset: ask_asset.to_owned().into(),
             })?,
         }))
     }
@@ -212,7 +212,7 @@ impl CwDexRouter {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
             msg: to_binary(&QueryMsg::SupportedAskAssets {
-                offer_asset: offer_asset.into(),
+                offer_asset: offer_asset.to_owned().into(),
             })?,
         }))
     }
