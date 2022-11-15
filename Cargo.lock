@@ -246,7 +246,7 @@ dependencies = [
 [[package]]
 name = "cw-asset"
 version = "0.3.0"
-source = "git+https://github.com/apollodao/cw-asset.git#4b34db7d796d8afcc7711600706ffce1dcb87791"
+source = "git+https://github.com/apollodao/cw-asset.git#f2701959a48ecae0620d492de6debd2442460a41"
 dependencies = [
  "astroport",
  "cosmwasm-std",
@@ -288,7 +288,7 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex#679ecdbacb696168dba9ace7dde02ad27ef9eda9"
+source = "git+https://github.com/apollodao/cw-dex#f3855e5f999d678c1e950d9b64b829f8140b70c5"
 dependencies = [
  "apollo-utils",
  "astroport",
@@ -897,7 +897,7 @@ dependencies = [
 [[package]]
 name = "osmosis-std"
 version = "0.12.0"
-source = "git+https://github.com/apollodao/osmosis-rust?rev=3ea06eda3e5f2979a6232a118544d292a3bfca9f#3ea06eda3e5f2979a6232a118544d292a3bfca9f"
+source = "git+https://github.com/apollodao/osmosis-rust?branch=feat/latest-build#023ebc1f2e620d9dff633456156f4298f741209d"
 dependencies = [
  "chrono",
  "cosmwasm-std",
@@ -912,7 +912,7 @@ dependencies = [
 [[package]]
 name = "osmosis-std-derive"
 version = "0.12.0"
-source = "git+https://github.com/apollodao/osmosis-rust?rev=3ea06eda3e5f2979a6232a118544d292a3bfca9f#3ea06eda3e5f2979a6232a118544d292a3bfca9f"
+source = "git+https://github.com/apollodao/osmosis-rust?branch=feat/latest-build#023ebc1f2e620d9dff633456156f4298f741209d"
 dependencies = [
  "itertools",
  "proc-macro2",

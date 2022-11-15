@@ -391,7 +391,7 @@ pub fn query_supported_offer_assets(
     let mut offer_assets: Vec<AssetInfo> = vec![];
     for x in PATHS.range(deps.storage, None, None, Order::Ascending) {
         let ((offer_asset, path_ask_asset), _) = x?;
-        if path_ask_asset.as_bytes() == ask_asset.to_string().as_bytes() {
+        if path_ask_asset == ask_asset.check(deps.api)? {
             offer_assets.push(offer_asset.into());
         }
     }
@@ -405,7 +405,7 @@ pub fn query_supported_ask_assets(
     let mut ask_assets: Vec<AssetInfo> = vec![];
     for x in PATHS.range(deps.storage, None, None, Order::Ascending) {
         let ((path_offer_asset, ask_asset), _) = x?;
-        if path_offer_asset.as_bytes() == offer_asset.to_string().as_bytes() {
+        if path_offer_asset == offer_asset.check(deps.api)? {
             ask_assets.push(ask_asset.into());
         }
     }
