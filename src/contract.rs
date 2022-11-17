@@ -1,15 +1,15 @@
+use apollo_utils::assets::{receive_asset, receive_assets};
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
     from_binary, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Order,
-    Response, StdResult, Uint128,
+    Response, StdResult, SubMsg, Uint128,
 };
 use cw2::set_contract_version;
 use cw20::Cw20ReceiveMsg;
 use cw_asset::{Asset, AssetInfo, AssetInfoUnchecked, AssetList, AssetListUnchecked};
 
 use crate::error::ContractError;
-use crate::helpers::{receive_asset, receive_assets};
 use crate::msg::{CallbackMsg, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::operations::{SwapOperation, SwapOperationsList, SwapOperationsListUnchecked};
 use crate::state::{ADMIN, PATHS};
@@ -161,13 +161,11 @@ pub fn execute_swap_operations(
     //   and in this case we do transfer from on it, given that the offer asset is
     //   a CW20. Otherwise we assume the caller already sent funds and in the first
     //   call of execute_swap_operation, we just use the whole contracts balance.
-    let mut msgs: Vec<CosmosMsg> = vec![];
+    let mut msgs: Vec<SubMsg> = vec![];
     if let Some(offer_amount) = offer_amount {
-        msgs.extend(receive_asset(
-            &info,
-            &env,
-            &Asset::new(offer_asset_info, offer_amount),
-        )?);
+        msgs.extend(
+            receive_asset(&info, &env, &Asset::new(offer_asset_info, offer_amount))?.messages,
+        );
     };
 
     //2. Loop and execute swap operations
@@ -247,7 +245,7 @@ pub fn basket_liquidate(
     let recipient = to.map_or(Ok(info.sender.clone()), |x| deps.api.addr_validate(&x))?;
 
     // 1. Assert offer_assets are sent or do TransferFrom on Cw20s
-    let receive_msgs = receive_assets(&info, &env, &offer_assets)?;
+    let receive_res = receive_assets(&info, &env, &offer_assets)?;
 
     // 2. Loop over offer assets and for each:
     // Fetch path and call ExecuteMsg::ExecuteSwapOperations
@@ -278,7 +276,7 @@ pub fn basket_liquidate(
         );
     }
 
-    Ok(Response::new().add_messages(receive_msgs))
+    Ok(receive_res)
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
