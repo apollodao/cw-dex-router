@@ -1,4 +1,4 @@
-use crate::msg::CallbackMsg;
+use crate::msg::{CallbackMsg, ExecuteMsg};
 use crate::ContractError;
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, Api, CosmosMsg, Deps, Env, Response, StdResult, Uint128};

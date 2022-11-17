@@ -251,7 +251,7 @@ pub fn basket_liquidate(
 
     // 2. Loop over offer assets and for each:
     // Fetch path and call ExecuteMsg::ExecuteSwapOperations
-    let mut msgs = offer_assets
+    let mut swap_msgs = offer_assets
         .into_iter()
         .try_fold(vec![], |mut msgs, asset| {
             let path = PATHS
@@ -267,7 +267,7 @@ pub fn basket_liquidate(
     //3. Assert min receive
     if let Some(minimum_receive) = minimum_receive {
         let recipient_balance = receive_asset.query_balance(&deps.querier, recipient.clone())?;
-        msgs.push(
+        swap_msgs.push(
             CallbackMsg::AssertMinimumReceive {
                 asset_info: receive_asset,
                 prev_balance: recipient_balance,
@@ -278,7 +278,7 @@ pub fn basket_liquidate(
         );
     }
 
-    Ok(Response::new().add_messages(receive_msgs))
+    Ok(Response::new().add_messages(vec![receive_msgs, swap_msgs].concat()))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]

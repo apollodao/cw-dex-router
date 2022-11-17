@@ -49,7 +49,12 @@ pub enum CallbackMsg {
 
 impl CallbackMsg {
     pub fn into_cosmos_msg(&self, env: &Env) -> Result<CosmosMsg, ContractError> {
-        Ok(wasm_execute(env.contract.address.to_string(), &self, vec![])?.into())
+        Ok(wasm_execute(
+            env.contract.address.to_string(),
+            &ExecuteMsg::Callback(self.to_owned()),
+            vec![],
+        )?
+        .into())
     }
 }
 
