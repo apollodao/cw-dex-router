@@ -2,11 +2,11 @@ use std::vec;
 
 use cosmwasm_schema::cw_serde;
 use cw20::{Cw20Coin, Cw20ExecuteMsg};
-use cw_asset::{Asset, AssetInfo, AssetInfoBase, AssetList};
+use cw_asset::{AssetInfo, AssetInfoBase, AssetList};
 
 use cosmwasm_std::{
-    to_binary, Addr, Api, Coin, CosmosMsg, Env, MessageInfo, QuerierWrapper, QueryRequest,
-    StdError, StdResult, Uint128, WasmMsg, WasmQuery,
+    to_binary, Addr, Api, Coin, CosmosMsg, QuerierWrapper, QueryRequest, StdResult, Uint128,
+    WasmMsg, WasmQuery,
 };
 
 use crate::{
@@ -216,45 +216,4 @@ impl CwDexRouter {
             })?,
         }))
     }
-}
-
-/// Assert that a specific native token in the form of an `Asset` was sent to the contract.
-pub fn assert_native_token_received(info: &MessageInfo, asset: &Asset) -> StdResult<()> {
-    let coin: Coin = asset.try_into()?;
-
-    if !info.funds.contains(&coin) {
-        return Err(StdError::generic_err(format!(
-            "Assert native token receive failed for asset: {}",
-            asset
-        )));
-    }
-    Ok(())
-}
-
-/// Calls TransferFrom on an Asset if it is a Cw20. If it is a native we just
-/// assert that the native token was already sent to the contract.
-pub fn receive_asset(info: &MessageInfo, env: &Env, asset: &Asset) -> StdResult<Vec<CosmosMsg>> {
-    match &asset.info {
-        AssetInfo::Cw20(_coin) => {
-            let msg =
-                asset.transfer_from_msg(info.sender.clone(), env.contract.address.to_string())?;
-            Ok(vec![msg])
-        }
-        AssetInfo::Native(_token) => {
-            //Here we just assert that the native token was sent with the contract call
-            assert_native_token_received(info, asset)?;
-            Ok(vec![])
-        }
-    }
-}
-
-pub fn receive_assets(
-    info: &MessageInfo,
-    env: &Env,
-    assets: &AssetList,
-) -> StdResult<Vec<CosmosMsg>> {
-    assets.into_iter().try_fold(vec![], |mut msgs, asset| {
-        msgs.append(&mut receive_asset(info, env, asset)?);
-        Ok(msgs)
-    })
 }

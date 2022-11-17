@@ -52,6 +52,7 @@ cw20 = "0.16"
 schemars = "0.8.10"
 serde = {version = "1.0.144", default-features = false, features = ["derive"]}
 thiserror = {version = "1.0.31"}
+apollo-utils = { git = "https://github.com/apollodao/apollo-utils.git" }
 
 [dev-dependencies]
 cw-multi-test = "0.16.0"
