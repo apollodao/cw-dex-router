@@ -27,6 +27,10 @@ impl From<CwDexRouter> for CwDexRouterUnchecked {
 }
 
 impl CwDexRouterUnchecked {
+    pub const fn new(addr: String) -> Self {
+        CwDexRouterBase(addr)
+    }
+
     pub fn check(&self, api: &dyn Api) -> StdResult<CwDexRouter> {
         Ok(CwDexRouter::new(&api.addr_validate(&self.0)?))
     }
