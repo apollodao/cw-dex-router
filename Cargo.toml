@@ -38,10 +38,10 @@ optimize = """docker run --rm -v "$(pwd)":/code \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
   cosmwasm/rust-optimizer:0.12.6
 """
-optimize-m1 = """docker run --rm -v "$(pwd)":/code \
+optimize-arm64 = """docker run --rm -v "$(pwd)":/code \
   --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-  -it cosmwasm/rust-optimizer-arm64:0.12.8
+  cosmwasm/rust-optimizer-arm64:0.12.8
 """
 
 [dependencies]
@@ -59,4 +59,10 @@ serde = {version = "1.0.144", default-features = false, features = ["derive"]}
 thiserror = {version = "1.0.31"}
 
 [dev-dependencies]
-cw-multi-test = "0.16.0"
+apollo-proto-rust = {git = "https://github.com/apollodao/apollo-proto-rust", tag = "v0.3.0"}
+cw-multi-test = "0.16"
+osmo-bindings = "0.5.1"
+testcontainers = { version = "0.14.0" , features = ["experimental"] }
+test-case = "2.2.2"
+cw-it = { git = "https://github.com/apollodao/cw-it.git" }
+osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust" }
