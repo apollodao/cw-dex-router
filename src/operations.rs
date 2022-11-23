@@ -13,6 +13,20 @@ pub struct SwapOperationBase<T> {
     pub ask_asset_info: AssetInfoBase<T>,
 }
 
+impl<T> SwapOperationBase<T> {
+    pub fn new(
+        pool: Pool,
+        offer_asset_info: AssetInfoBase<T>,
+        ask_asset_info: AssetInfoBase<T>,
+    ) -> Self {
+        Self {
+            pool,
+            offer_asset_info,
+            ask_asset_info,
+        }
+    }
+}
+
 pub type SwapOperationUnchecked = SwapOperationBase<String>;
 
 pub type SwapOperation = SwapOperationBase<Addr>;
