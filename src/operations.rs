@@ -91,6 +91,12 @@ impl From<&SwapOperation> for SwapOperationUnchecked {
 #[cw_serde]
 pub struct SwapOperationsListBase<T>(pub Vec<SwapOperationBase<T>>);
 
+impl<T> SwapOperationsListBase<T> {
+    pub fn new(operations: Vec<SwapOperationBase<T>>) -> Self {
+        Self(operations)
+    }
+}
+
 pub type SwapOperationsListUnchecked = SwapOperationsListBase<String>;
 
 pub type SwapOperationsList = SwapOperationsListBase<Addr>;
