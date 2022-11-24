@@ -10,7 +10,7 @@ use cosmwasm_std::{
 };
 
 use crate::{
-    msg::{ExecuteMsg, QueryMsg},
+    msg::{ExecuteMsg, InstantiateMsg, QueryMsg},
     operations::SwapOperationsList,
 };
 
@@ -33,6 +33,20 @@ impl CwDexRouterUnchecked {
 
     pub fn check(&self, api: &dyn Api) -> StdResult<CwDexRouter> {
         Ok(CwDexRouter::new(&api.addr_validate(&self.0)?))
+    }
+
+    pub fn instantiate(
+        code_id: u64,
+        admin: Option<String>,
+        label: Option<String>,
+    ) -> StdResult<CosmosMsg> {
+        Ok(CosmosMsg::Wasm(WasmMsg::Instantiate {
+            code_id,
+            admin,
+            msg: to_binary(&InstantiateMsg {})?,
+            funds: vec![],
+            label: label.unwrap_or("cw-dex-router".to_string()),
+        }))
     }
 }
 
