@@ -10,7 +10,7 @@ use cw_asset::{Asset, AssetInfo, AssetInfoUnchecked, AssetList, AssetListUncheck
 
 use crate::error::ContractError;
 use crate::helpers::{receive_asset, receive_assets};
-use crate::msg::{CallbackMsg, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg};
+use crate::msg::{CallbackMsg, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::operations::{SwapOperation, SwapOperationsList, SwapOperationsListUnchecked};
 use crate::state::{ADMIN, PATHS};
 
@@ -410,6 +410,11 @@ pub fn query_supported_ask_assets(
         }
     }
     Ok(ask_assets)
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Response, ContractError> {
+    Ok(Response::default())
 }
 
 //TODO: Write tests
