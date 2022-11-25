@@ -335,7 +335,7 @@ pub fn simulate_swap_operations(
 ) -> Result<Uint128, ContractError> {
     let operations = operations.check(deps.api)?;
 
-    for operation in operations.0 {
+    for operation in operations.into_iter() {
         let offer_asset = Asset::new(operation.offer_asset_info, offer_amount);
 
         offer_amount = operation.pool.as_trait().simulate_swap(

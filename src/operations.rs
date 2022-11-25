@@ -89,11 +89,20 @@ impl From<&SwapOperation> for SwapOperationUnchecked {
 }
 
 #[cw_serde]
-pub struct SwapOperationsListBase<T>(pub Vec<SwapOperationBase<T>>);
+pub struct SwapOperationsListBase<T>(Vec<SwapOperationBase<T>>);
 
 impl<T> SwapOperationsListBase<T> {
     pub fn new(operations: Vec<SwapOperationBase<T>>) -> Self {
         Self(operations)
+    }
+}
+
+impl<T> IntoIterator for SwapOperationsListBase<T> {
+    type Item = SwapOperationBase<T>;
+    type IntoIter = std::vec::IntoIter<SwapOperationBase<T>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
     }
 }
 
