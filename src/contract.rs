@@ -154,8 +154,8 @@ pub fn execute_swap_operations(
     //Validate input or use sender address if None
     let recipient = to.map_or(Ok(sender.clone()), |x| deps.api.addr_validate(&x))?;
 
-    let target_asset_info = operations.0.last().unwrap().ask_asset_info.clone();
-    let offer_asset_info = operations.0.first().unwrap().offer_asset_info.clone();
+    let target_asset_info = operations.to();
+    let offer_asset_info = operations.from();
 
     //1. Validate sent asset. We only do this if the passed in optional `offer_amount`
     //   and in this case we do transfer from on it, given that the offer asset is

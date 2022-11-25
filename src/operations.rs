@@ -2,7 +2,7 @@ use crate::msg::CallbackMsg;
 use crate::ContractError;
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, Api, CosmosMsg, Deps, Env, Response, StdResult, Uint128};
-use cw_asset::{Asset, AssetInfoBase};
+use cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cw_dex::traits::Pool as PoolTrait;
 use cw_dex::Pool;
 
@@ -149,6 +149,14 @@ impl SwapOperationsList {
             )
         }
         Ok(msgs)
+    }
+
+    pub fn from(&self) -> AssetInfo {
+        self.0.first().unwrap().offer_asset_info.clone()
+    }
+
+    pub fn to(&self) -> AssetInfo {
+        self.0.last().unwrap().ask_asset_info.clone()
     }
 }
 
