@@ -134,6 +134,16 @@ impl SwapOperationsListUnchecked {
             prev_ask_asset = operation.ask_asset_info.clone();
         }
 
+        // Check that the path never swaps through the same pool twice
+        let mut unique_pools = vec![];
+        for operation in operations.iter() {
+            if !unique_pools.contains(&operation.pool) {
+                unique_pools.push(operation.pool.clone());
+            } else {
+                return Err(ContractError::InvalidSwapOperations);
+            }
+        }
+
         Ok(SwapOperationsListBase(operations))
     }
 }
