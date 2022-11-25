@@ -230,6 +230,12 @@ pub fn update_path(
 ) -> Result<Response, ContractError> {
     ADMIN.assert_admin(deps.as_ref(), &info.sender)?;
 
+    // Validate the path
+    if path.from() != offer_asset || path.to() != ask_asset {
+        println!("Invalid path: {:?}", path);
+        return Err(ContractError::InvalidSwapOperations);
+    }
+
     PATHS.save(deps.storage, (offer_asset.into(), ask_asset.into()), &path)?;
     Ok(Response::default())
 }
