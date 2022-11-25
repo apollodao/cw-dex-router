@@ -122,12 +122,16 @@ impl SwapOperationsListUnchecked {
             return Err(ContractError::MustProvideOperations);
         }
 
-        let mut last_offer_asset = operations.first().unwrap().offer_asset_info.clone();
+        let mut prev_ask_asset = operations.first().unwrap().ask_asset_info.clone();
         for operation in operations.iter().skip(1) {
-            if operation.ask_asset_info != last_offer_asset {
+            if operation.offer_asset_info != prev_ask_asset {
+                println!(
+                    "ask_asset_info: {:?} != prev_offer_asset: {:?}",
+                    operation.offer_asset_info, prev_ask_asset
+                );
                 return Err(ContractError::InvalidSwapOperations);
             }
-            last_offer_asset = operation.offer_asset_info.clone();
+            prev_ask_asset = operation.ask_asset_info.clone();
         }
 
         Ok(SwapOperationsListBase(operations))
