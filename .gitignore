@@ -14,5 +14,6 @@
 *.iml
 .idea
 
-# Integration test build artifacts
+# Build artifacts
+artifacts/
 tests/artifacts
