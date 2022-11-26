@@ -51,7 +51,7 @@ impl SwapOperation {
         recipient: Addr,
     ) -> Result<Response, ContractError> {
         let offer_asset = Asset::new(self.offer_asset_info.clone(), offer_amount);
-        let minimum_receive = minimum_receive.unwrap_or_default();
+        let minimum_receive = minimum_receive.unwrap_or(Uint128::one());
 
         let mut response = self.pool.swap(
             deps,
