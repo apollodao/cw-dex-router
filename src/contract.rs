@@ -232,8 +232,7 @@ pub fn update_path(
 
     // Validate the path
     if path.from() != offer_asset || path.to() != ask_asset {
-        println!("Invalid path: {:?}", path);
-        return Err(ContractError::InvalidSwapOperations);
+        return Err(ContractError::InvalidSwapOperations { operations: path });
     }
 
     PATHS.save(deps.storage, (offer_asset.into(), ask_asset.into()), &path)?;
