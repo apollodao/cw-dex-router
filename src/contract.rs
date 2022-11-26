@@ -283,7 +283,9 @@ pub fn basket_liquidate(
         );
     }
 
-    Ok(Response::new().add_messages(receive_msgs))
+    Ok(Response::new()
+        .add_messages(receive_msgs)
+        .add_messages(msgs))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
