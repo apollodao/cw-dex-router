@@ -697,7 +697,7 @@ dependencies = [
 [[package]]
 name = "cw-it"
 version = "0.1.0"
-source = "git+https://github.com/apollodao/cw-it.git#826d645c0038487ffda6d565be1ae8210353cfc8"
+source = "git+https://github.com/apollodao/cw-it.git#1df4fe6982f6afe1334555cbcd57772f78ac3470"
 dependencies = [
  "anyhow",
  "config",
