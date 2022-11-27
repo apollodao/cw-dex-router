@@ -123,9 +123,7 @@ impl SwapOperationsListUnchecked {
         let mut prev_ask_asset = operations.first().unwrap().ask_asset_info.clone();
         for operation in operations.iter().skip(1) {
             if operation.offer_asset_info != prev_ask_asset {
-                return Err(ContractError::InvalidSwapOperations {
-                    operations: operations.into(),
-                });
+                return Err(ContractError::InvalidSwapOperations { operations });
             }
             prev_ask_asset = operation.ask_asset_info.clone();
         }
