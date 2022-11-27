@@ -181,6 +181,12 @@ impl SwapOperationsList {
     }
 }
 
+impl From<SwapOperationsList> for Vec<SwapOperation> {
+    fn from(operations: SwapOperationsList) -> Self {
+        operations.0
+    }
+}
+
 impl From<&SwapOperationsList> for SwapOperationsListUnchecked {
     fn from(checked: &SwapOperationsList) -> Self {
         Self(checked.0.iter().map(|x| x.into()).collect())
