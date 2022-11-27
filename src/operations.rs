@@ -197,9 +197,3 @@ impl From<SwapOperationsList> for SwapOperationsListUnchecked {
         (&checked).into()
     }
 }
-
-impl From<Vec<SwapOperation>> for SwapOperationsList {
-    fn from(x: Vec<SwapOperation>) -> Self {
-        Self(x)
-    }
-}
