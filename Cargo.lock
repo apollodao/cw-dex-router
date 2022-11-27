@@ -275,7 +275,7 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex?branch=develop#e0bca311bb6d49cc538d7be4285e0277d40ed4e4"
+source = "git+https://github.com/apollodao/cw-dex?rev=e0bca311bb6d49cc538d7be4285e0277d40ed4e4#e0bca311bb6d49cc538d7be4285e0277d40ed4e4"
 dependencies = [
  "apollo-utils",
  "cosmwasm-schema",
