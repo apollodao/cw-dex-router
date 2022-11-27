@@ -3,6 +3,8 @@ use cw_controllers::AdminError;
 use cw_dex::CwDexError;
 use thiserror::Error;
 
+use crate::operations::SwapOperation;
+
 #[derive(Error, Debug)]
 pub enum ContractError {
     #[error("{0}")]
@@ -29,8 +31,8 @@ pub enum ContractError {
     #[error("Unauthorized")]
     Unauthorized,
 
-    #[error("Invalid swap operations")]
-    InvalidSwapOperations,
+    #[error("Invalid swap operations: {operations:?}")]
+    InvalidSwapOperations { operations: Vec<SwapOperation> },
 
     #[error("Did not receive minimum amount")]
     FailedMinimumReceive,

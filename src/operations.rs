@@ -2,7 +2,7 @@ use crate::msg::CallbackMsg;
 use crate::ContractError;
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, Api, CosmosMsg, Deps, Env, Response, StdResult, Uint128};
-use cw_asset::{Asset, AssetInfoBase};
+use cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cw_dex::traits::Pool as PoolTrait;
 use cw_dex::Pool;
 
@@ -11,6 +11,20 @@ pub struct SwapOperationBase<T> {
     pub pool: Pool,
     pub offer_asset_info: AssetInfoBase<T>,
     pub ask_asset_info: AssetInfoBase<T>,
+}
+
+impl<T> SwapOperationBase<T> {
+    pub fn new(
+        pool: Pool,
+        offer_asset_info: AssetInfoBase<T>,
+        ask_asset_info: AssetInfoBase<T>,
+    ) -> Self {
+        Self {
+            pool,
+            offer_asset_info,
+            ask_asset_info,
+        }
+    }
 }
 
 pub type SwapOperationUnchecked = SwapOperationBase<String>;
@@ -37,7 +51,7 @@ impl SwapOperation {
         recipient: Addr,
     ) -> Result<Response, ContractError> {
         let offer_asset = Asset::new(self.offer_asset_info.clone(), offer_amount);
-        let minimum_receive = minimum_receive.unwrap_or_default();
+        let minimum_receive = minimum_receive.unwrap_or(Uint128::one());
 
         let mut response = self.pool.swap(
             deps,
@@ -75,13 +89,26 @@ impl From<&SwapOperation> for SwapOperationUnchecked {
 }
 
 #[cw_serde]
-pub struct SwapOperationsListBase<T>(pub Vec<SwapOperationBase<T>>);
+pub struct SwapOperationsListBase<T>(Vec<SwapOperationBase<T>>);
+
+impl<T> IntoIterator for SwapOperationsListBase<T> {
+    type Item = SwapOperationBase<T>;
+    type IntoIter = std::vec::IntoIter<SwapOperationBase<T>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
 
 pub type SwapOperationsListUnchecked = SwapOperationsListBase<String>;
 
 pub type SwapOperationsList = SwapOperationsListBase<Addr>;
 
 impl SwapOperationsListUnchecked {
+    pub fn new(operations: Vec<SwapOperationUnchecked>) -> Self {
+        Self(operations)
+    }
+
     pub fn check(&self, api: &dyn Api) -> Result<SwapOperationsList, ContractError> {
         let operations = self
             .0
@@ -93,12 +120,24 @@ impl SwapOperationsListUnchecked {
             return Err(ContractError::MustProvideOperations);
         }
 
-        let mut last_offer_asset = operations.first().unwrap().offer_asset_info.clone();
+        let mut prev_ask_asset = operations.first().unwrap().ask_asset_info.clone();
         for operation in operations.iter().skip(1) {
-            if operation.ask_asset_info != last_offer_asset {
-                return Err(ContractError::InvalidSwapOperations);
+            if operation.offer_asset_info != prev_ask_asset {
+                return Err(ContractError::InvalidSwapOperations { operations });
             }
-            last_offer_asset = operation.offer_asset_info.clone();
+            prev_ask_asset = operation.ask_asset_info.clone();
+        }
+
+        // Check that the path never swaps through the same pool twice
+        let mut unique_pools = vec![];
+        for operation in operations.iter() {
+            if !unique_pools.contains(&operation.pool) {
+                unique_pools.push(operation.pool.clone());
+            } else {
+                return Err(ContractError::InvalidSwapOperations {
+                    operations: operations.into(),
+                });
+            }
         }
 
         Ok(SwapOperationsListBase(operations))
@@ -130,6 +169,20 @@ impl SwapOperationsList {
         }
         Ok(msgs)
     }
+
+    pub fn from(&self) -> AssetInfo {
+        self.0.first().unwrap().offer_asset_info.clone()
+    }
+
+    pub fn to(&self) -> AssetInfo {
+        self.0.last().unwrap().ask_asset_info.clone()
+    }
+}
+
+impl From<SwapOperationsList> for Vec<SwapOperation> {
+    fn from(operations: SwapOperationsList) -> Self {
+        operations.0
+    }
 }
 
 impl From<&SwapOperationsList> for SwapOperationsListUnchecked {
@@ -140,11 +193,5 @@ impl From<&SwapOperationsList> for SwapOperationsListUnchecked {
 impl From<SwapOperationsList> for SwapOperationsListUnchecked {
     fn from(checked: SwapOperationsList) -> Self {
         (&checked).into()
-    }
-}
-
-impl From<Vec<SwapOperation>> for SwapOperationsList {
-    fn from(x: Vec<SwapOperation>) -> Self {
-        Self(x)
     }
 }

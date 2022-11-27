@@ -154,8 +154,8 @@ pub fn execute_swap_operations(
     //Validate input or use sender address if None
     let recipient = to.map_or(Ok(sender.clone()), |x| deps.api.addr_validate(&x))?;
 
-    let target_asset_info = operations.0.last().unwrap().ask_asset_info.clone();
-    let offer_asset_info = operations.0.first().unwrap().offer_asset_info.clone();
+    let target_asset_info = operations.to();
+    let offer_asset_info = operations.from();
 
     //1. Validate sent asset. We only do this if the passed in optional `offer_amount`
     //   and in this case we do transfer from on it, given that the offer asset is
@@ -230,6 +230,13 @@ pub fn update_path(
 ) -> Result<Response, ContractError> {
     ADMIN.assert_admin(deps.as_ref(), &info.sender)?;
 
+    // Validate the path
+    if path.from() != offer_asset || path.to() != ask_asset {
+        return Err(ContractError::InvalidSwapOperations {
+            operations: path.into(),
+        });
+    }
+
     PATHS.save(deps.storage, (offer_asset.into(), ask_asset.into()), &path)?;
     Ok(Response::default())
 }
@@ -278,7 +285,9 @@ pub fn basket_liquidate(
         );
     }
 
-    Ok(Response::new().add_messages(receive_msgs))
+    Ok(Response::new()
+        .add_messages(receive_msgs)
+        .add_messages(msgs))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -329,7 +338,7 @@ pub fn simulate_swap_operations(
 ) -> Result<Uint128, ContractError> {
     let operations = operations.check(deps.api)?;
 
-    for operation in operations.0 {
+    for operation in operations.into_iter() {
         let offer_asset = Asset::new(operation.offer_asset_info, offer_amount);
 
         offer_amount = operation.pool.as_trait().simulate_swap(

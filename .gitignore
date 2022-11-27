@@ -13,3 +13,7 @@
 # IDEs
 *.iml
 .idea
+
+# Build artifacts
+artifacts/
+tests/artifacts
