@@ -31,6 +31,10 @@ rpath = false
 backtraces = ["cosmwasm-std/backtraces"]
 # use library feature to disable all instantiate/execute/query exports
 library = []
+osmosis = ["cw-dex/osmosis"]
+astroport = ["cw-dex/astroport"]
+junoswap = ["cw-dex/junoswap"]
+
 
 [package.metadata.scripts]
 optimize = """docker run --rm -v "$(pwd)":/code \
