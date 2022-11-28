@@ -425,7 +425,3 @@ pub fn query_supported_ask_assets(
 pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Response, ContractError> {
     Ok(Response::default())
 }
-
-//TODO: Write tests
-#[cfg(test)]
-mod tests {}

@@ -23,6 +23,7 @@ use cw_asset::Asset;
 use cw_asset::AssetList;
 use cw_asset::AssetListUnchecked;
 use cw_asset::{AssetInfo, AssetInfoUnchecked};
+#[cfg(feature = "osmosis")]
 use cw_dex::osmosis::OsmosisPool;
 use cw_dex::Pool;
 use cw_dex_router::msg::InstantiateMsg;
@@ -219,73 +220,6 @@ fn create_basic_pool<'a>(
 
     OsmosisPool::new(pool_id)
 }
-
-// fn create_pools<'a, R: Runner<'a>>(app: &'a R, admin: &SigningAccount, paths: &[&[&str]]) -> RunnerResult<HashMap::<(String,String), OsmosisPool>> {
-//     // Find unique set of unique pairs from paths
-//     let mut unique_pairs = HashSet::<(String,String)>::new();
-//     for path in paths {
-//         let path = path.to_vec();
-//         for (a,b) in path.clone().into_iter().zip(path.into_iter().skip(1)) {
-//             if a < b {
-//                 unique_pairs.insert((a.to_string(), b.to_string()));
-//             } else {
-//                 unique_pairs.insert((b.to_string(), a.to_string()));
-//             }
-//         }
-//     }
-
-//     println!("unique pairs: {:?}", unique_pairs);
-
-//     // Create pools and add to pools hashmap
-//     let mut pools = HashMap::<(String,String), OsmosisPool>::new();
-//     for pool in unique_pairs {
-//         let pool_liquidity = vec![
-//             Coin {
-//                 denom: pool.0.to_string(),
-//                 amount: Uint128::from(1000000u128),
-//             },
-//             Coin {
-//                 denom: pool.1.to_string(),
-//                 amount: Uint128::from(1000000u128),
-//             },
-//         ];
-//         let osmo_pool = create_basic_pool(&app, pool_liquidity, &admin);
-//         println!("osmo pool: {:?}", osmo_pool);
-
-//         pools.insert(pool, osmo_pool);
-//     }
-
-//     Ok(pools)
-// }
-
-// fn update_paths_2<'a>(
-//     app: &impl Runner<'a>,
-//     api: &dyn Api,
-//     cw_dex_router: &CwDexRouter,
-//     paths: &[((&str, &str), &[&str])],
-//     sender: &SigningAccount,
-// ) -> RunnerResult<()> {
-//     // Update paths
-//     let update_msgs = paths
-//         .into_iter()
-//         .map(|((offer_asset, ask_asset), path)| {
-//             let offer_asset = AssetInfoUnchecked::Native(offer_asset.to_string());
-//             let ask_asset = AssetInfoUnchecked::Native(ask_asset.to_string());
-//             let path = osmosis_swap_operations_list_from_vec(path);
-//             cw_dex_router.update_path_msg(
-//                 offer_asset.check(api).unwrap(),
-//                 ask_asset.check(api).unwrap(),
-//                 &path.check(api).unwrap(),
-//             )
-//         })
-//         .collect::<StdResult<Vec<CosmosMsg>>>()
-//         .unwrap();
-
-//     // Execute update path messages
-//     app.execute_cosmos_msgs::<Any>(update_msgs.as_slice(), &sender)?;
-
-//     Ok(())
-// }
 
 #[test_case(&[((UOSMO, UATOM), UOSMO_UATOM_PATH)], UOSMO_UATOM_PATH, 1 => matches Err(_) ; "not admin")]
 #[test_case(&[((UOSMO, UATOM), UOSMO_UATOM_PATH)], UOSMO_UATOM_PATH, 0  ; "uosmo/uatom simple path")]
