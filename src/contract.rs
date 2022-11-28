@@ -152,7 +152,7 @@ pub fn execute_swap_operations(
     to: Option<String>,
 ) -> Result<Response, ContractError> {
     //Validate input or use sender address if None
-    let recipient = to.map_or(Ok(sender.clone()), |x| deps.api.addr_validate(&x))?;
+    let recipient = to.map_or(Ok(sender), |x| deps.api.addr_validate(&x))?;
 
     let target_asset_info = operations.to();
     let offer_asset_info = operations.from();

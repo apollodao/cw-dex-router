@@ -1,49 +1,36 @@
 use std::collections::HashMap;
-use std::collections::HashSet;
-use std::ops::Deref;
+
 use std::str::FromStr;
 
-use cosmwasm_std::testing::digit_sum;
-use cosmwasm_std::testing::riffle_shuffle;
-use cosmwasm_std::testing::MockApi;
-use cosmwasm_std::Addr;
 use cosmwasm_std::Api;
-use cosmwasm_std::Binary;
-use cosmwasm_std::CanonicalAddr;
+
 use cosmwasm_std::Coin;
 use cosmwasm_std::CosmosMsg;
-use cosmwasm_std::Decimal;
-use cosmwasm_std::Empty;
-use cosmwasm_std::Querier;
+
 use cosmwasm_std::QuerierWrapper;
 use cosmwasm_std::StdError;
 use cosmwasm_std::StdResult;
 use cosmwasm_std::Uint128;
 use cw_asset::Asset;
 use cw_asset::AssetList;
-use cw_asset::AssetListUnchecked;
+
 use cw_asset::{AssetInfo, AssetInfoUnchecked};
 #[cfg(feature = "osmosis")]
 use cw_dex::osmosis::OsmosisPool;
 use cw_dex::Pool;
 use cw_dex_router::msg::InstantiateMsg;
-use cw_dex_router::msg::QueryMsg;
-use cw_dex_router::operations::SwapOperation;
-use cw_dex_router::operations::SwapOperationBase;
+
 use cw_dex_router::operations::SwapOperationUnchecked;
-use cw_dex_router::operations::SwapOperationsList;
+
+use cw_dex_router::helpers::{CwDexRouter, CwDexRouterUnchecked};
 use cw_dex_router::operations::SwapOperationsListUnchecked;
-use cw_dex_router::{
-    helpers::{CwDexRouter, CwDexRouterUnchecked},
-    msg::ExecuteMsg,
-};
 
 use cw_it::config::Contract;
+use cw_it::config::TestConfig;
 use cw_it::mock_api::OsmosisMockApi;
-use cw_it::{app::App, chain::Chain, config::TestConfig};
 use osmosis_testing::cosmrs::proto::cosmos::bank::v1beta1::QueryAllBalancesRequest;
 use osmosis_testing::cosmrs::proto::cosmos::bank::v1beta1::QueryBalanceRequest;
-use osmosis_testing::cosmrs::proto::cosmwasm::wasm::v1::Code;
+
 use osmosis_testing::cosmrs::proto::cosmwasm::wasm::v1::MsgExecuteContractResponse;
 use osmosis_testing::cosmrs::Any;
 use osmosis_testing::Bank;
@@ -53,7 +40,6 @@ use osmosis_testing::Runner;
 use osmosis_testing::RunnerResult;
 use osmosis_testing::SigningAccount;
 use osmosis_testing::{Account, Module, Wasm};
-use testcontainers::{clients::Cli, images::generic::GenericImage, Container, RunnableImage};
 
 use test_case::test_case;
 
@@ -151,7 +137,7 @@ const UOSMO_UATOM_UION_PATH: &[(u64, &str, &str); 2] = &[(1, UOSMO, UATOM), (2, 
 
 fn osmosis_swap_operations_list_from_vec(vec: &[(u64, &str, &str)]) -> SwapOperationsListUnchecked {
     SwapOperationsListUnchecked::new(
-        vec.into_iter()
+        vec.iter()
             .map(|(pool_id, from, to)| {
                 let pool = Pool::Osmosis(OsmosisPool::new(pool_id.to_owned()));
                 let from = AssetInfoUnchecked::Native(from.to_string());
@@ -171,7 +157,7 @@ fn update_paths<'a>(
 ) -> RunnerResult<()> {
     // Update paths
     let update_msgs = paths
-        .into_iter()
+        .iter()
         .map(|((offer_asset, ask_asset), path)| {
             let offer_asset = AssetInfoUnchecked::Native(offer_asset.to_string());
             let ask_asset = AssetInfoUnchecked::Native(ask_asset.to_string());
@@ -186,7 +172,7 @@ fn update_paths<'a>(
         .unwrap();
 
     // Execute update path messages
-    app.execute_cosmos_msgs::<Any>(update_msgs.as_slice(), &sender)?;
+    app.execute_cosmos_msgs::<Any>(update_msgs.as_slice(), sender)?;
 
     Ok(())
 }
@@ -234,10 +220,10 @@ fn test_update_path_and_query_path_for_pair<'a>(
     let admin = &accs[0];
     let sender = &accs[sender_acc_nr];
     let cw_dex_router =
-        instantiate_cw_dex_router(&app, &api, &admin, code_ids["cw_dex_router.wasm"])?;
+        instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
 
     // Add paths
-    update_paths(&app, &api, &cw_dex_router, paths, &sender)?;
+    update_paths(&app, &api, &cw_dex_router, paths, sender)?;
 
     let expected_output_path = osmosis_swap_operations_list_from_vec(output_path)
         .check(&api)
@@ -289,7 +275,7 @@ fn test_simulate_and_execute_basket_liquidate(
 
     // Check input assets
     let offer_assets: AssetList = offer_assets
-        .into_iter()
+        .iter()
         .map(|(denom, amount)| {
             let asset_info = AssetInfoUnchecked::Native(denom.to_string())
                 .check(&api)
@@ -304,7 +290,7 @@ fn test_simulate_and_execute_basket_liquidate(
 
     // Instantiate cw_dex_router
     let cw_dex_router =
-        instantiate_cw_dex_router(&app, &api, &admin, code_ids["cw_dex_router.wasm"]).unwrap();
+        instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"]).unwrap();
 
     // Add paths
     update_paths(&app, &api, &cw_dex_router, paths, admin).unwrap();
@@ -323,7 +309,7 @@ fn test_simulate_and_execute_basket_liquidate(
                     amount: Uint128::from(1000000u128),
                 },
             ];
-            let osmo_pool = create_basic_pool(&app, pool_liquidity, &admin);
+            let osmo_pool = create_basic_pool(&app, pool_liquidity, admin);
             println!("osmo pool: {:?}", osmo_pool);
             println!("pool: {:?}", pool);
         }
@@ -383,7 +369,7 @@ fn test_simulate_and_execute_basket_liquidate(
     println!("liquidate_msgs: {:?}", liquidate_msgs);
     println!("pre call");
     let res =
-        app.execute_cosmos_msgs::<MsgExecuteContractResponse>(liquidate_msgs.as_slice(), &sender)?;
+        app.execute_cosmos_msgs::<MsgExecuteContractResponse>(liquidate_msgs.as_slice(), sender)?;
     // print events
     println!("events: {:?}", res.events);
     println!("post call");
@@ -431,7 +417,7 @@ fn test_simulate_and_execute_swap_operations(
 
     // Instantiate cw_dex_router
     let cw_dex_router =
-        instantiate_cw_dex_router(&app, &api, &admin, code_ids["cw_dex_router.wasm"])?;
+        instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
 
     // Update paths
     update_paths(&app, &api, &cw_dex_router, paths, admin)?;
@@ -450,7 +436,7 @@ fn test_simulate_and_execute_swap_operations(
                     amount: Uint128::from(1000000u128),
                 },
             ];
-            let osmo_pool = create_basic_pool(&app, pool_liquidity, &admin);
+            let osmo_pool = create_basic_pool(&app, pool_liquidity, admin);
             println!("osmo pool: {:?}", osmo_pool);
             println!("pool: {:?}", pool);
         }
@@ -479,7 +465,7 @@ fn test_simulate_and_execute_swap_operations(
     let msgs = cw_dex_router
         .execute_swap_operations_msg(&operations, None, minimum_receive, recipient.clone(), funds)
         .unwrap();
-    app.execute_cosmos_msgs::<Any>(&[msgs], &sender)?;
+    app.execute_cosmos_msgs::<Any>(&[msgs], sender)?;
 
     // Query out asset balances after swap
     let balance_after = bank_balance_query(
@@ -517,7 +503,7 @@ fn test_supported_ask_and_offer_assets(
 
     // Find expected offer and ask assets from paths
     let expected_offer_assets = paths
-        .into_iter()
+        .iter()
         .filter_map(|((offer, ask), _)| {
             if ask_asset == AssetInfo::Native(ask.to_string()) {
                 Some(AssetInfo::Native(offer.to_string()))
@@ -527,7 +513,7 @@ fn test_supported_ask_and_offer_assets(
         })
         .collect::<Vec<_>>();
     let expected_ask_assets = paths
-        .into_iter()
+        .iter()
         .filter_map(|((offer, ask), _)| {
             if offer_asset == AssetInfo::Native(offer.to_string()) {
                 Some(AssetInfo::Native(ask.to_string()))
@@ -539,7 +525,7 @@ fn test_supported_ask_and_offer_assets(
 
     // Instantiate cw_dex_router
     let cw_dex_router =
-        instantiate_cw_dex_router(&app, &api, &admin, code_ids["cw_dex_router.wasm"])?;
+        instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
 
     // Update paths
     update_paths(&app, &api, &cw_dex_router, paths, admin)?;
@@ -558,7 +544,7 @@ fn test_supported_ask_and_offer_assets(
                     amount: Uint128::from(1000000u128),
                 },
             ];
-            let osmo_pool = create_basic_pool(&app, pool_liquidity, &admin);
+            let osmo_pool = create_basic_pool(&app, pool_liquidity, admin);
             println!("osmo pool: {:?}", osmo_pool);
             println!("pool: {:?}", pool);
         }
