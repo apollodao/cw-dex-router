@@ -27,10 +27,13 @@ panic = 'abort'
 rpath = false
 
 [features]
+default = ["osmosis"]
 # for more explicit tests, cargo test --features=backtraces
 backtraces = ["cosmwasm-std/backtraces"]
 # use library feature to disable all instantiate/execute/query exports
 library = []
+osmosis = ["cw-dex/osmosis"]
+astroport = ["cw-dex/astroport"]
 
 [package.metadata.scripts]
 optimize = """docker run --rm -v "$(pwd)":/code \
@@ -46,7 +49,6 @@ optimize-arm64 = """docker run --rm -v "$(pwd)":/code \
 
 [dependencies]
 cosmwasm-std = "1.1"
-cosmwasm-storage = "1.1"
 cosmwasm-schema = "1.1"
 cw-asset = { git="https://github.com/apollodao/cw-asset.git" }
 cw-controllers = "0.16"
@@ -54,8 +56,6 @@ cw-dex = {git = "https://github.com/apollodao/cw-dex", branch = "develop" }
 cw-storage-plus = "0.16"
 cw2 = "0.16"
 cw20 = "0.16"
-schemars = "0.8.10"
-serde = {version = "1.0.144", default-features = false, features = ["derive"]}
 thiserror = {version = "1.0.31"}
 
 [dev-dependencies]
