@@ -134,9 +134,7 @@ impl SwapOperationsListUnchecked {
             if !unique_pools.contains(&operation.pool) {
                 unique_pools.push(operation.pool.clone());
             } else {
-                return Err(ContractError::InvalidSwapOperations {
-                    operations,
-                });
+                return Err(ContractError::InvalidSwapOperations { operations });
             }
         }
 
