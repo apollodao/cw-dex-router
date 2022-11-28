@@ -75,7 +75,6 @@ pub enum QueryMsg {
         offer_amount: Uint128,
         operations: SwapOperationsListUnchecked,
         // For some reason osmosis requires this to simulate a swap...
-        // TODO: Find a way around this and remove it from the API.
         sender: Option<String>,
     },
 
@@ -84,7 +83,6 @@ pub enum QueryMsg {
         offer_assets: AssetListUnchecked,
         receive_asset: AssetInfoUnchecked,
         // For some reason osmosis requires this to simulate a swap...
-        // TODO: Find a way around this and remove it from the API.
         sender: Option<String>,
     },
 
