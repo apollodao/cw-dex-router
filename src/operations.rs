@@ -116,7 +116,7 @@ impl SwapOperationsListUnchecked {
             .map(|x| x.check(api))
             .collect::<StdResult<Vec<_>>>()?;
 
-        if operations.len() < 1 {
+        if operations.is_empty() {
             return Err(ContractError::MustProvideOperations);
         }
 
@@ -134,9 +134,7 @@ impl SwapOperationsListUnchecked {
             if !unique_pools.contains(&operation.pool) {
                 unique_pools.push(operation.pool.clone());
             } else {
-                return Err(ContractError::InvalidSwapOperations {
-                    operations: operations.into(),
-                });
+                return Err(ContractError::InvalidSwapOperations { operations });
             }
         }
 
@@ -164,7 +162,7 @@ impl SwapOperationsList {
                     operation: operation.clone(),
                     to,
                 }
-                .into_cosmos_msg(&env)?,
+                .into_cosmos_msg(env)?,
             )
         }
         Ok(msgs)

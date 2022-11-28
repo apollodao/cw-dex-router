@@ -152,7 +152,7 @@ pub fn execute_swap_operations(
     to: Option<String>,
 ) -> Result<Response, ContractError> {
     //Validate input or use sender address if None
-    let recipient = to.map_or(Ok(sender.clone()), |x| deps.api.addr_validate(&x))?;
+    let recipient = to.map_or(Ok(sender), |x| deps.api.addr_validate(&x))?;
 
     let target_asset_info = operations.to();
     let offer_asset_info = operations.from();
@@ -439,7 +439,3 @@ pub fn query_supported_ask_assets(
 pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Response, ContractError> {
     Ok(Response::default())
 }
-
-//TODO: Write tests
-#[cfg(test)]
-mod tests {}
