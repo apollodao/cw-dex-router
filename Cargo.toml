@@ -27,6 +27,7 @@ panic = 'abort'
 rpath = false
 
 [features]
+default = ["osmosis"]
 # for more explicit tests, cargo test --features=backtraces
 backtraces = ["cosmwasm-std/backtraces"]
 # use library feature to disable all instantiate/execute/query exports
@@ -40,7 +41,7 @@ junoswap = ["cw-dex/junoswap"]
 optimize = """docker run --rm -v "$(pwd)":/code \
   --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-  cosmwasm/rust-optimizer:0.12.6
+  cosmwasm/rust-optimizer:0.12.8
 """
 optimize-m1 = """docker run --rm -v "$(pwd)":/code \
   --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
@@ -54,7 +55,7 @@ cosmwasm-storage = "1.1"
 cosmwasm-schema = "1.1"
 cw-asset = { git="https://github.com/apollodao/cw-asset.git" }
 cw-controllers = "0.16"
-cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "e0bca311bb6d49cc538d7be4285e0277d40ed4e4" }
+cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "291266ea9080b225cad4e0199f1314c471d29963" }
 cw-storage-plus = "0.16"
 cw2 = "0.16"
 cw20 = "0.16"
