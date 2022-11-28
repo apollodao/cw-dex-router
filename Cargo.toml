@@ -50,9 +50,9 @@ optimize-arm64 = """docker run --rm -v "$(pwd)":/code \
 [dependencies]
 cosmwasm-std = "1.1"
 cosmwasm-schema = "1.1"
-cw-asset = { git="https://github.com/apollodao/cw-asset.git" }
+cw-asset = { git="https://github.com/apollodao/cw-asset.git", rev = "5e51773da42ef82faa67576454e8c4b0971097f2" }
 cw-controllers = "0.16"
-cw-dex = {git = "https://github.com/apollodao/cw-dex", branch = "develop" }
+cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "de7394fdbc74a3401f4227f81389413991b309e3" }
 cw-storage-plus = "0.16"
 cw2 = "0.16"
 cw20 = "0.16"
@@ -64,5 +64,5 @@ cw-multi-test = "0.16"
 osmo-bindings = "0.5.1"
 testcontainers = { version = "0.14.0" , features = ["experimental"] }
 test-case = "2.2.2"
-cw-it = { git = "https://github.com/apollodao/cw-it.git" }
-osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust" }
+cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "64baab334a3982d0b41fbc2810d9e311c14337da" }
+osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust", rev = "52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3" }
