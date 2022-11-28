@@ -1,7 +1,7 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    from_binary, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Order,
+    from_binary, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, Event, MessageInfo, Order,
     Response, StdResult, Uint128,
 };
 use cw2::set_contract_version;
@@ -201,7 +201,14 @@ pub fn execute_swap_operation(
         .offer_asset_info
         .query_balance(&deps.querier, env.contract.address.to_string())?;
 
-    operation.to_cosmos_response(deps.as_ref(), &env, offer_amount, None, to)
+    let event = Event::new("apollo/cw-dex-router/callback_execute_swap_operation")
+        .add_attribute("operation", format!("{:?}", operation))
+        .add_attribute("offer_amount", offer_amount)
+        .add_attribute("to", to.to_string());
+
+    Ok(operation
+        .to_cosmos_response(deps.as_ref(), &env, offer_amount, None, to)?
+        .add_event(event))
 }
 
 pub fn assert_minimum_receive(
@@ -276,18 +283,25 @@ pub fn basket_liquidate(
         let recipient_balance = receive_asset.query_balance(&deps.querier, recipient.clone())?;
         msgs.push(
             CallbackMsg::AssertMinimumReceive {
-                asset_info: receive_asset,
+                asset_info: receive_asset.clone(),
                 prev_balance: recipient_balance,
                 minimum_receive,
-                recipient,
+                recipient: recipient.clone(),
             }
             .into_cosmos_msg(&env)?,
         );
     }
 
+    let event = Event::new("apollo/cw-dex-router/basket_liquidate")
+        .add_attribute("offer_assets", offer_assets.to_string())
+        .add_attribute("receive_asset", receive_asset.to_string())
+        .add_attribute("minimum_receive", minimum_receive.unwrap_or_default())
+        .add_attribute("recipient", recipient);
+
     Ok(Response::new()
         .add_messages(receive_msgs)
-        .add_messages(msgs))
+        .add_messages(msgs)
+        .add_event(event))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
