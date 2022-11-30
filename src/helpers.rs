@@ -26,6 +26,12 @@ impl From<CwDexRouter> for CwDexRouterUnchecked {
     }
 }
 
+impl<T> From<T> for CwDexRouterBase<T> {
+    fn from(x: T) -> Self {
+        CwDexRouterBase(x)
+    }
+}
+
 impl CwDexRouterUnchecked {
     pub const fn new(addr: String) -> Self {
         CwDexRouterBase(addr)
