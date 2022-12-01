@@ -54,7 +54,7 @@ cosmwasm-std = "1.1"
 cosmwasm-schema = "1.1"
 cw-asset = { git="https://github.com/apollodao/cw-asset.git", rev = "5e51773da42ef82faa67576454e8c4b0971097f2" }
 cw-controllers = "0.16"
-cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "de7394fdbc74a3401f4227f81389413991b309e3" }
+cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "de7394fdbc74a3401f4227f81389413991b309e3" features = ["osmosis", "astroport"] }
 cw-storage-plus = "0.16"
 cw2 = "0.16"
 cw20 = "0.16"
