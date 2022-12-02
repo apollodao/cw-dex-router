@@ -52,8 +52,9 @@ dependencies = [
 [[package]]
 name = "apollo-utils"
 version = "0.1.0"
-source = "git+https://github.com/apollodao/apollo-utils.git?rev=dd3da52653d3dc350b20b46f363ebcfdcd64aa27#dd3da52653d3dc350b20b46f363ebcfdcd64aa27"
+source = "git+https://github.com/apollodao/apollo-utils.git?rev=0421a13a2b7cbbce76ea88563a9ef4fce3d1e6ee#0421a13a2b7cbbce76ea88563a9ef4fce3d1e6ee"
 dependencies = [
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
  "cw20 0.16.0",
@@ -62,9 +63,8 @@ dependencies = [
 [[package]]
 name = "apollo-utils"
 version = "0.1.0"
-source = "git+https://github.com/apollodao/apollo-utils.git?rev=e1032d151426fcaf81144a9f21ed52a65a602bf9#e1032d151426fcaf81144a9f21ed52a65a602bf9"
+source = "git+https://github.com/apollodao/apollo-utils.git?rev=dd3da52653d3dc350b20b46f363ebcfdcd64aa27#dd3da52653d3dc350b20b46f363ebcfdcd64aa27"
 dependencies = [
- "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
  "cw20 0.16.0",
@@ -705,7 +705,7 @@ name = "cw-dex-router"
 version = "0.1.0"
 dependencies = [
  "apollo-proto-rust",
- "apollo-utils 0.1.0 (git+https://github.com/apollodao/apollo-utils.git?rev=e1032d151426fcaf81144a9f21ed52a65a602bf9)",
+ "apollo-utils 0.1.0 (git+https://github.com/apollodao/apollo-utils.git?rev=0421a13a2b7cbbce76ea88563a9ef4fce3d1e6ee)",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
