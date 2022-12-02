@@ -1,5 +1,6 @@
 use std::vec;
 
+use apollo_utils::assets::separate_natives_and_cw20s;
 use cosmwasm_schema::cw_serde;
 use cw20::{Cw20Coin, Cw20ExecuteMsg};
 use cw_asset::{Asset, AssetInfo, AssetInfoBase, AssetList};
@@ -105,13 +106,7 @@ impl CwDexRouter {
         to: Option<String>,
     ) -> StdResult<Vec<CosmosMsg>> {
         //Extract all native tokens to send in funds field.
-        let funds: Vec<Coin> = offer_assets
-            .into_iter()
-            .filter_map(|x| match x.info {
-                cw_asset::AssetInfoBase::Native(_) => Some(x.try_into()),
-                _ => None,
-            })
-            .collect::<StdResult<Vec<_>>>()?;
+        let (funds, _) = separate_natives_and_cw20s(&offer_assets);
 
         //Extract all cw20s and approve allowance to router.
         let mut msgs: Vec<CosmosMsg> = offer_assets

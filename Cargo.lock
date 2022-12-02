@@ -43,7 +43,7 @@ version = "0.2.0"
 source = "git+https://github.com/apollodao/apollo-proto-rust?tag=v0.3.0#3e77287172d7e96485465f2288d5c0eafc80f9c5"
 dependencies = [
  "cosmwasm-std",
- "prost 0.11.2",
+ "prost 0.11.3",
  "prost-types",
  "schemars",
  "serde",
@@ -54,6 +54,17 @@ name = "apollo-utils"
 version = "0.1.0"
 source = "git+https://github.com/apollodao/apollo-utils.git?rev=dd3da52653d3dc350b20b46f363ebcfdcd64aa27#dd3da52653d3dc350b20b46f363ebcfdcd64aa27"
 dependencies = [
+ "cosmwasm-std",
+ "cw-asset",
+ "cw20 0.16.0",
+]
+
+[[package]]
+name = "apollo-utils"
+version = "0.1.0"
+source = "git+https://github.com/apollodao/apollo-utils.git?rev=e1032d151426fcaf81144a9f21ed52a65a602bf9#e1032d151426fcaf81144a9f21ed52a65a602bf9"
+dependencies = [
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
  "cw20 0.16.0",
@@ -82,9 +93,9 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.58"
+version = "0.1.59"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e805d94e6b5001b651426cf4cd446b1ab5f319d27bab5c644f61de0a804360c"
+checksum = "31e6e93155431f3931513b243d371981bb2770112b370c82745a1d19d2f99364"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -110,9 +121,9 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "axum"
-version = "0.5.17"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acee9fd5073ab6b045a275b3e709c163dd36c90685219cb21804a147b58dba43"
+checksum = "08b108ad2665fa3f6e6a517c3d80ec3e77d224c47d605167aefaa5d7ef97fa48"
 dependencies = [
  "async-trait",
  "axum-core",
@@ -128,9 +139,9 @@ dependencies = [
  "mime",
  "percent-encoding",
  "pin-project-lite",
+ "rustversion",
  "serde",
  "sync_wrapper",
- "tokio",
  "tower",
  "tower-http",
  "tower-layer",
@@ -139,9 +150,9 @@ dependencies = [
 
 [[package]]
 name = "axum-core"
-version = "0.2.9"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37e5939e02c56fecd5c017c37df4238c0a839fa76b7f97acdd7efb804fd181cc"
+checksum = "79b8558f5a0581152dc94dcd289132a1d377494bdeafcd41869b3258e3e2ad92"
 dependencies = [
  "async-trait",
  "bytes",
@@ -149,6 +160,7 @@ dependencies = [
  "http",
  "http-body",
  "mime",
+ "rustversion",
  "tower-layer",
  "tower-service",
 ]
@@ -453,7 +465,7 @@ version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20b42021d8488665b1a0d9748f1f81df7235362d194f44481e2e61bf376b77b4"
 dependencies = [
- "prost 0.11.2",
+ "prost 0.11.3",
  "prost-types",
  "tendermint-proto 0.23.9",
 ]
@@ -464,7 +476,7 @@ version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "673d31bd830c0772d78545de20d975129b6ab2f7db4e4e9313c3b8777d319194"
 dependencies = [
- "prost 0.11.2",
+ "prost 0.11.3",
  "prost-types",
  "tendermint-proto 0.26.0",
  "tonic",
@@ -672,7 +684,7 @@ name = "cw-dex"
 version = "0.0.1"
 source = "git+https://github.com/apollodao/cw-dex?rev=de7394fdbc74a3401f4227f81389413991b309e3#de7394fdbc74a3401f4227f81389413991b309e3"
 dependencies = [
- "apollo-utils",
+ "apollo-utils 0.1.0 (git+https://github.com/apollodao/apollo-utils.git?rev=dd3da52653d3dc350b20b46f363ebcfdcd64aa27)",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
@@ -693,6 +705,7 @@ name = "cw-dex-router"
 version = "0.1.0"
 dependencies = [
  "apollo-proto-rust",
+ "apollo-utils 0.1.0 (git+https://github.com/apollodao/apollo-utils.git?rev=e1032d151426fcaf81144a9f21ed52a65a602bf9)",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
@@ -726,7 +739,7 @@ dependencies = [
  "git2",
  "git2_credentials",
  "osmosis-testing",
- "prost 0.11.2",
+ "prost 0.11.3",
  "serde",
  "serde_json",
  "testcontainers",
@@ -1923,9 +1936,9 @@ dependencies = [
 
 [[package]]
 name = "matchit"
-version = "0.5.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73cbba799671b762df5a175adf59ce145165747bb891505c43d09aefbbf38beb"
+checksum = "b87248edafb776e59e6ee64a79086f65890d3510f2c656c000bf2a7e8a0aea40"
 
 [[package]]
 name = "memchr"
@@ -2126,7 +2139,7 @@ dependencies = [
  "chrono",
  "cosmwasm-std",
  "osmosis-std-derive",
- "prost 0.11.2",
+ "prost 0.11.3",
  "prost-types",
  "schemars",
  "serde",
@@ -2155,7 +2168,7 @@ dependencies = [
  "cosmwasm-std",
  "itertools",
  "osmosis-std",
- "prost 0.11.2",
+ "prost 0.11.3",
  "serde",
  "serde_json",
  "thiserror",
@@ -2223,9 +2236,9 @@ checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
 name = "pest"
-version = "2.5.0"
+version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f400b0f7905bf702f9f3dc3df5a121b16c54e9e8012c082905fdf09a931861a"
+checksum = "cc8bed3549e0f9b0a2a78bf7c0018237a2cdf085eecbbc048e52612438e4e9d0"
 dependencies = [
  "thiserror",
  "ucd-trie",
@@ -2233,9 +2246,9 @@ dependencies = [
 
 [[package]]
 name = "pest_derive"
-version = "2.5.0"
+version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "423c2ba011d6e27b02b482a3707c773d19aec65cc024637aec44e19652e66f63"
+checksum = "cdc078600d06ff90d4ed238f0119d84ab5d43dbaad278b0e33a8820293b32344"
 dependencies = [
  "pest",
  "pest_generator",
@@ -2243,9 +2256,9 @@ dependencies = [
 
 [[package]]
 name = "pest_generator"
-version = "2.5.0"
+version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e64e6c2c85031c02fdbd9e5c72845445ca0a724d419aa0bc068ac620c9935c1"
+checksum = "28a1af60b1c4148bb269006a750cff8e2ea36aff34d2d96cf7be0b14d1bed23c"
 dependencies = [
  "pest",
  "pest_meta",
@@ -2256,9 +2269,9 @@ dependencies = [
 
 [[package]]
 name = "pest_meta"
-version = "2.5.0"
+version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57959b91f0a133f89a68be874a5c88ed689c19cd729ecdb5d762ebf16c64d662"
+checksum = "fec8605d59fc2ae0c6c1aefc0c7c7a9769732017c0ce07f7a9cfffa7b4404f20"
 dependencies = [
  "once_cell",
  "pest",
@@ -2364,9 +2377,9 @@ dependencies = [
 
 [[package]]
 name = "prost"
-version = "0.11.2"
+version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0841812012b2d4a6145fae9a6af1534873c32aa67fff26bd09f8fa42c83f95a"
+checksum = "c0b18e655c21ff5ac2084a5ad0611e827b3f92badf79f4910b5a5c58f4d87ff0"
 dependencies = [
  "bytes",
  "prost-derive 0.11.2",
@@ -2405,7 +2418,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "747761bc3dc48f9a34553bf65605cf6cb6288ba219f3450b4275dbd81539551a"
 dependencies = [
  "bytes",
- "prost 0.11.2",
+ "prost 0.11.3",
 ]
 
 [[package]]
@@ -2633,6 +2646,12 @@ dependencies = [
  "schannel",
  "security-framework",
 ]
+
+[[package]]
+name = "rustversion"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97477e48b4cf8603ad5f7aaf897467cf42ab4218a38ef76fb14c2d6773a6d6a8"
 
 [[package]]
 name = "ryu"
@@ -3000,9 +3019,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.104"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ae548ec36cf198c0ef7710d3c230987c2d6d7bd98ad6edc0274462724c585ce"
+checksum = "60b9b43d45702de4c839cb9b51d9f529c5dd26a4aff255b42b1ebc03e88ee908"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3056,7 +3075,7 @@ dependencies = [
  "k256",
  "num-traits",
  "once_cell",
- "prost 0.11.2",
+ "prost 0.11.3",
  "prost-types",
  "ripemd160",
  "serde",
@@ -3096,7 +3115,7 @@ dependencies = [
  "flex-error",
  "num-derive",
  "num-traits",
- "prost 0.11.2",
+ "prost 0.11.3",
  "prost-types",
  "serde",
  "serde_bytes",
@@ -3114,7 +3133,7 @@ dependencies = [
  "flex-error",
  "num-derive",
  "num-traits",
- "prost 0.11.2",
+ "prost 0.11.3",
  "prost-types",
  "serde",
  "serde_bytes",
@@ -3315,9 +3334,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-macros"
-version = "1.8.0"
+version = "1.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9724f9a975fb987ef7a3cd9be0350edcbe130698af5b8f7a631e23d42d052484"
+checksum = "d266c00fde287f55d3f1c3e96c500c362a2b8c695076ec180f27918820bc6df8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3395,9 +3414,9 @@ dependencies = [
 
 [[package]]
 name = "tonic"
-version = "0.8.2"
+version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55b9af819e54b8f33d453655bef9b9acc171568fb49523078d0cc4e7484200ec"
+checksum = "8f219fad3b929bef19b1f86fbc0358d35daed8f2cac972037ac0dc10bbb8d5fb"
 dependencies = [
  "async-stream",
  "async-trait",
@@ -3413,7 +3432,7 @@ dependencies = [
  "hyper-timeout",
  "percent-encoding",
  "pin-project",
- "prost 0.11.2",
+ "prost 0.11.3",
  "prost-derive 0.11.2",
  "tokio",
  "tokio-stream",
@@ -3447,9 +3466,9 @@ dependencies = [
 
 [[package]]
 name = "tower-http"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c530c8675c1dbf98facee631536fa116b5fb6382d7dd6dc1b118d970eafe3ba"
+checksum = "f873044bf02dd1e8239e9c1293ea39dad76dc594ec16185d0a1bf31d8dc8d858"
 dependencies = [
  "bitflags",
  "bytes",
@@ -3539,9 +3558,9 @@ checksum = "9e79c4d996edb816c91e4308506774452e55e95c3c9de07b6729e17e15a5ef81"
 
 [[package]]
 name = "uint"
-version = "0.9.4"
+version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a45526d29728d135c2900b0d30573fe3ee79fceb12ef534c7bb30e810a91b601"
+checksum = "76f64bba2c53b04fcab63c01a7d7427eadc821e3bc48c34dc9ba29c501164b52"
 dependencies = [
  "byteorder",
  "crunchy",
@@ -3933,9 +3952,9 @@ dependencies = [
 
 [[package]]
 name = "zeroize_derive"
-version = "1.3.2"
+version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f8f187641dad4f680d25c4bfc4225b418165984179f26ca76ec4fb6441d3a17"
+checksum = "44bf07cb3e50ea2003396695d58bf46bc9887a1f362260446fad6bc4e79bd36c"
 dependencies = [
  "proc-macro2",
  "quote",

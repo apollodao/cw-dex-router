@@ -59,6 +59,7 @@ cw-storage-plus = "0.16"
 cw2 = "0.16"
 cw20 = "0.16"
 thiserror = {version = "1.0.31"}
+apollo-utils = { git = "https://github.com/apollodao/apollo-utils.git", rev = "e1032d151426fcaf81144a9f21ed52a65a602bf9" }
 
 [dev-dependencies]
 apollo-proto-rust = {git = "https://github.com/apollodao/apollo-proto-rust", tag = "v0.3.0"}
