@@ -54,7 +54,7 @@ cosmwasm-std = "1.1"
 cosmwasm-schema = "1.1"
 cw-asset = { git="https://github.com/apollodao/cw-asset.git", rev = "5e51773da42ef82faa67576454e8c4b0971097f2" }
 cw-controllers = "0.16"
-cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "19d3c9be9edc8ca48cdeb02c4deecc0b7daed813" }
+cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "7b5e0ea6a2648183d547fbcc0e24b460eed0392e" }
 cw-storage-plus = "0.16"
 cw2 = "0.16"
 cw20 = "0.16"
