@@ -5,6 +5,7 @@ use cosmwasm_std::{Addr, Api, CosmosMsg, Deps, Env, Response, StdResult, Uint128
 use cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cw_dex::traits::Pool as PoolTrait;
 use cw_dex::Pool;
+use std::collections::HashSet;
 
 #[cw_serde]
 pub struct SwapOperationBase<T> {
@@ -110,6 +111,9 @@ impl SwapOperationsListUnchecked {
     }
 
     pub fn check(&self, api: &dyn Api) -> Result<SwapOperationsList, ContractError> {
+        let mut assets_to_swap = HashSet::new();
+        // should not visit the same asset more than once
+        let mut visited_assets = HashSet::new();
         let operations = self
             .0
             .iter()
@@ -121,21 +125,24 @@ impl SwapOperationsListUnchecked {
         }
 
         let mut prev_ask_asset = operations.first().unwrap().ask_asset_info.clone();
+        visited_assets.insert(operations.first().unwrap().offer_asset_info.to_string());
+        visited_assets.insert(prev_ask_asset.to_string());
+        assets_to_swap.insert(prev_ask_asset.to_string());
         for operation in operations.iter().skip(1) {
-            if operation.offer_asset_info != prev_ask_asset {
+            if operation.offer_asset_info != prev_ask_asset
+                || visited_assets.contains(&operation.ask_asset_info.to_string())
+            {
                 return Err(ContractError::InvalidSwapOperations { operations });
             }
             prev_ask_asset = operation.ask_asset_info.clone();
+            assets_to_swap.remove(&operation.offer_asset_info.to_string());
+            assets_to_swap.insert(operation.ask_asset_info.to_string());
+            visited_assets.insert(operation.ask_asset_info.to_string());
         }
 
-        // Check that the path never swaps through the same pool twice
-        let mut unique_pools = vec![];
-        for operation in operations.iter() {
-            if !unique_pools.contains(&operation.pool) {
-                unique_pools.push(operation.pool.clone());
-            } else {
-                return Err(ContractError::InvalidSwapOperations { operations });
-            }
+        // should be left with one asset after swap operations are complete
+        if visited_assets.len() != 1 {
+            return Err(ContractError::InvalidSwapOperations { operations });
         }
 
         Ok(SwapOperationsListBase(operations))
@@ -143,6 +150,27 @@ impl SwapOperationsListUnchecked {
 }
 
 impl SwapOperationsList {
+    pub fn new(operations: Vec<SwapOperation>) -> Self {
+        Self(operations)
+    }
+
+    pub fn reverse(&self) -> Self {
+        let mut operations = self
+            .0
+            .to_vec()
+            .into_iter()
+            .map(|op| {
+                let mut op = op.clone();
+                let tmp = op.offer_asset_info.clone();
+                op.offer_asset_info = op.ask_asset_info.clone();
+                op.ask_asset_info = tmp;
+                op.clone()
+            })
+            .collect::<Vec<SwapOperation>>();
+        operations.reverse();
+        Self::new(operations)
+    }
+
     pub fn into_execute_msgs(
         &self,
         env: &Env,
