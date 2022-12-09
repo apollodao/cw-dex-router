@@ -245,6 +245,8 @@ pub fn update_path(
     }
 
     PATHS.save(deps.storage, (offer_asset.into(), ask_asset.into()), &path)?;
+    // todo - reverse path and store
+    // PATHS.save(deps.storage, (ask_asset.into(), offer_asset.into()), &path)?;
     Ok(Response::default())
 }
 
@@ -273,7 +275,10 @@ pub fn basket_liquidate(
                     deps.storage,
                     (asset.info.clone().into(), receive_asset.clone().into()),
                 )
-                .map_err(|_| ContractError::NoPathFound)?;
+                .map_err(|_| ContractError::NoPathFound {
+                    offer: asset.info.to_string(),
+                    ask: receive_asset.to_string(),
+                })?;
             msgs.extend(path.into_execute_msgs(&env, recipient.clone())?);
             Ok::<Vec<_>, ContractError>(msgs)
         })?;
@@ -403,8 +408,11 @@ pub fn query_path_for_pair(
     ask_asset: AssetInfo,
 ) -> Result<SwapOperationsList, ContractError> {
     PATHS
-        .load(deps.storage, (offer_asset.into(), ask_asset.into()))
-        .map_err(|_| ContractError::NoPathFound)
+        .load(deps.storage, ((&offer_asset).into(), (&ask_asset).into()))
+        .map_err(|_| ContractError::NoPathFound {
+            offer: offer_asset.to_string(),
+            ask: ask_asset.to_string(),
+        })
 }
 
 pub fn query_supported_offer_assets(
