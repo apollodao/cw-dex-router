@@ -244,9 +244,17 @@ pub fn update_path(
         });
     }
 
-    PATHS.save(deps.storage, (offer_asset.into(), ask_asset.into()), &path)?;
-    // todo - reverse path and store
-    // PATHS.save(deps.storage, (ask_asset.into(), offer_asset.into()), &path)?;
+    PATHS.save(
+        deps.storage,
+        ((&offer_asset).into(), (&ask_asset).into()),
+        &path,
+    )?;
+    // reverse path and store
+    PATHS.save(
+        deps.storage,
+        (ask_asset.into(), offer_asset.into()),
+        &path.reverse(),
+    )?;
     Ok(Response::default())
 }
 
