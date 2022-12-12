@@ -219,3 +219,56 @@ impl From<SwapOperationsList> for SwapOperationsListUnchecked {
         (&checked).into()
     }
 }
+
+#[cfg(feature = "osmosis")]
+#[cfg(test)]
+mod unit_tests {
+    use crate::operations::{SwapOperation, SwapOperationsList};
+    use cw_asset::AssetInfo;
+    use cw_dex::osmosis::OsmosisPool;
+    use cw_dex::Pool;
+
+    #[test]
+    fn test_reverse() {
+        let ops = SwapOperationsList::new(vec![
+            SwapOperation::new(
+                Pool::Osmosis(OsmosisPool { pool_id: 1 }),
+                AssetInfo::Native("asset1".to_string()),
+                AssetInfo::Native("asset2".to_string()),
+            ),
+            SwapOperation::new(
+                Pool::Osmosis(OsmosisPool { pool_id: 2 }),
+                AssetInfo::Native("asset2".to_string()),
+                AssetInfo::Native("asset3".to_string()),
+            ),
+            SwapOperation::new(
+                Pool::Osmosis(OsmosisPool { pool_id: 3 }),
+                AssetInfo::Native("asset3".to_string()),
+                AssetInfo::Native("asset4".to_string()),
+            ),
+        ]);
+
+        let reversed = ops.reverse();
+
+        assert_eq!(
+            reversed,
+            SwapOperationsList::new(vec![
+                SwapOperation::new(
+                    Pool::Osmosis(OsmosisPool { pool_id: 3 }),
+                    AssetInfo::Native("asset4".to_string()),
+                    AssetInfo::Native("asset3".to_string()),
+                ),
+                SwapOperation::new(
+                    Pool::Osmosis(OsmosisPool { pool_id: 2 }),
+                    AssetInfo::Native("asset3".to_string()),
+                    AssetInfo::Native("asset2".to_string()),
+                ),
+                SwapOperation::new(
+                    Pool::Osmosis(OsmosisPool { pool_id: 1 }),
+                    AssetInfo::Native("asset2".to_string()),
+                    AssetInfo::Native("asset1".to_string()),
+                )
+            ])
+        )
+    }
+}
