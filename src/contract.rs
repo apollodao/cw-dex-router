@@ -45,13 +45,13 @@ pub fn execute(
             minimum_receive,
             to,
         } => {
-            let api = deps.api;
+            let operations = operations.check(deps.as_ref())?;
             execute_swap_operations(
                 deps,
                 env,
                 info.clone(),
                 info.sender,
-                operations.check(api)?,
+                operations,
                 offer_amount,
                 minimum_receive,
                 to,
@@ -79,13 +79,14 @@ pub fn execute(
             ask_asset,
             path,
         } => {
+            let path = path.check(deps.as_ref())?;
             let api = deps.api;
             update_path(
                 deps,
                 info,
                 offer_asset.check(api)?,
                 ask_asset.check(api)?,
-                path.check(api)?,
+                path,
             )
         }
         ExecuteMsg::Callback(msg) => {
@@ -121,23 +122,24 @@ pub fn receive_cw20(
 ) -> Result<Response, ContractError> {
     let sender = deps.api.addr_validate(&cw20_msg.sender)?;
 
-    let api = deps.api;
-
     match from_binary(&cw20_msg.msg)? {
         Cw20HookMsg::ExecuteSwapOperations {
             operations,
             minimum_receive,
             to,
-        } => execute_swap_operations(
-            deps,
-            env,
-            info,
-            sender,
-            operations.check(api)?,
-            None,
-            minimum_receive,
-            to,
-        ),
+        } => {
+            let operations = operations.check(deps.as_ref())?;
+            execute_swap_operations(
+                deps,
+                env,
+                info,
+                sender,
+                operations,
+                None,
+                minimum_receive,
+                to,
+            )
+        }
     }
 }
 
@@ -363,7 +365,7 @@ pub fn simulate_swap_operations(
     operations: SwapOperationsListUnchecked,
     sender: Option<String>,
 ) -> Result<Uint128, ContractError> {
-    let operations = operations.check(deps.api)?;
+    let operations = operations.check(deps)?;
 
     for operation in operations.into_iter() {
         let offer_asset = Asset::new(operation.offer_asset_info, offer_amount);
