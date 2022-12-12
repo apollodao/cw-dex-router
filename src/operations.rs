@@ -1,7 +1,7 @@
 use crate::msg::CallbackMsg;
 use crate::ContractError;
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::{Addr, Api, CosmosMsg, Deps, Env, Response, StdResult, Uint128};
+use cosmwasm_std::{Addr, CosmosMsg, Deps, Env, Response, StdResult, Uint128};
 use cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cw_dex::traits::Pool as PoolTrait;
 use cw_dex::Pool;
@@ -32,12 +32,17 @@ pub type SwapOperationUnchecked = SwapOperationBase<String>;
 pub type SwapOperation = SwapOperationBase<Addr>;
 
 impl SwapOperationUnchecked {
-    pub fn check(&self, api: &dyn Api) -> StdResult<SwapOperation> {
-        Ok(SwapOperation {
-            ask_asset_info: self.ask_asset_info.check(api)?,
-            offer_asset_info: self.offer_asset_info.check(api)?,
+    pub fn check(&self, deps: Deps) -> StdResult<SwapOperation> {
+        let op = SwapOperation {
+            ask_asset_info: self.ask_asset_info.check(deps.api)?,
+            offer_asset_info: self.offer_asset_info.check(deps.api)?,
             pool: self.pool.clone(),
-        })
+        };
+        op.pool.check(
+            deps,
+            &vec![op.offer_asset_info.clone(), op.ask_asset_info.clone()],
+        )?;
+        Ok(op)
     }
 }
 
@@ -109,11 +114,11 @@ impl SwapOperationsListUnchecked {
         Self(operations)
     }
 
-    pub fn check(&self, api: &dyn Api) -> Result<SwapOperationsList, ContractError> {
+    pub fn check(&self, deps: Deps) -> Result<SwapOperationsList, ContractError> {
         let operations = self
             .0
             .iter()
-            .map(|x| x.check(api))
+            .map(|x| x.check(deps))
             .collect::<StdResult<Vec<_>>>()?;
 
         if operations.is_empty() {
