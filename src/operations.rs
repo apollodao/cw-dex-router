@@ -239,17 +239,17 @@ mod unit_tests {
     fn test_reverse() {
         let ops = SwapOperationsList::new(vec![
             SwapOperation::new(
-                Pool::Osmosis(OsmosisPool { pool_id: 1 }),
+                Pool::Osmosis(OsmosisPool::unchecked(1)),
                 AssetInfo::Native("asset1".to_string()),
                 AssetInfo::Native("asset2".to_string()),
             ),
             SwapOperation::new(
-                Pool::Osmosis(OsmosisPool { pool_id: 2 }),
+                Pool::Osmosis(OsmosisPool::unchecked(2)),
                 AssetInfo::Native("asset2".to_string()),
                 AssetInfo::Native("asset3".to_string()),
             ),
             SwapOperation::new(
-                Pool::Osmosis(OsmosisPool { pool_id: 3 }),
+                Pool::Osmosis(OsmosisPool::unchecked(3)),
                 AssetInfo::Native("asset3".to_string()),
                 AssetInfo::Native("asset4".to_string()),
             ),
@@ -261,17 +261,17 @@ mod unit_tests {
             reversed,
             SwapOperationsList::new(vec![
                 SwapOperation::new(
-                    Pool::Osmosis(OsmosisPool { pool_id: 3 }),
+                    Pool::Osmosis(OsmosisPool::unchecked(3)),
                     AssetInfo::Native("asset4".to_string()),
                     AssetInfo::Native("asset3".to_string()),
                 ),
                 SwapOperation::new(
-                    Pool::Osmosis(OsmosisPool { pool_id: 2 }),
+                    Pool::Osmosis(OsmosisPool::unchecked(2)),
                     AssetInfo::Native("asset3".to_string()),
                     AssetInfo::Native("asset2".to_string()),
                 ),
                 SwapOperation::new(
-                    Pool::Osmosis(OsmosisPool { pool_id: 1 }),
+                    Pool::Osmosis(OsmosisPool::unchecked(1)),
                     AssetInfo::Native("asset2".to_string()),
                     AssetInfo::Native("asset1".to_string()),
                 )

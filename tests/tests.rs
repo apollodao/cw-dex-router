@@ -148,31 +148,32 @@ fn osmosis_swap_operations_list_from_vec(vec: &[(u64, &str, &str)]) -> SwapOpera
     )
 }
 
-fn update_paths<'a>(
+fn set_paths<'a>(
     app: &impl Runner<'a>,
     api: &dyn Api,
     cw_dex_router: &CwDexRouter,
     paths: &[((&str, &str), &[(u64, &str, &str)])],
     sender: &SigningAccount,
 ) -> RunnerResult<()> {
-    // Update paths
-    let update_msgs = paths
+    // Set paths
+    let set_path_msgs = paths
         .iter()
         .map(|((offer_asset, ask_asset), path)| {
             let offer_asset = AssetInfoUnchecked::Native(offer_asset.to_string());
             let ask_asset = AssetInfoUnchecked::Native(ask_asset.to_string());
             let path = osmosis_swap_operations_list_from_vec(path);
-            cw_dex_router.update_path_msg(
+            cw_dex_router.set_path_msg(
                 offer_asset.check(api).unwrap(),
                 ask_asset.check(api).unwrap(),
                 &path.check(api).unwrap(),
+                false,
             )
         })
         .collect::<StdResult<Vec<CosmosMsg>>>()
         .unwrap();
 
-    // Execute update path messages
-    app.execute_cosmos_msgs::<Any>(update_msgs.as_slice(), sender)?;
+    // Execute set path messages
+    app.execute_cosmos_msgs::<Any>(set_path_msgs.as_slice(), sender)?;
 
     Ok(())
 }
@@ -222,8 +223,8 @@ fn test_update_path_and_query_path_for_pair<'a>(
     let cw_dex_router =
         instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
 
-    // Add paths
-    update_paths(&app, &api, &cw_dex_router, paths, sender)?;
+    // Set paths
+    set_paths(&app, &api, &cw_dex_router, paths, sender)?;
 
     let expected_output_path = osmosis_swap_operations_list_from_vec(output_path)
         .check(&api)
@@ -292,8 +293,8 @@ fn test_simulate_and_execute_basket_liquidate(
     let cw_dex_router =
         instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"]).unwrap();
 
-    // Add paths
-    update_paths(&app, &api, &cw_dex_router, paths, admin).unwrap();
+    // Set paths
+    set_paths(&app, &api, &cw_dex_router, paths, admin).unwrap();
 
     // Create pools and add liquidity
     for path in paths {
@@ -419,8 +420,8 @@ fn test_simulate_and_execute_swap_operations(
     let cw_dex_router =
         instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
 
-    // Update paths
-    update_paths(&app, &api, &cw_dex_router, paths, admin)?;
+    // Set paths
+    set_paths(&app, &api, &cw_dex_router, paths, admin)?;
 
     // Create pools and add liquidity
     for path in paths {
@@ -527,8 +528,8 @@ fn test_supported_ask_and_offer_assets(
     let cw_dex_router =
         instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
 
-    // Update paths
-    update_paths(&app, &api, &cw_dex_router, paths, admin)?;
+    // Set paths
+    set_paths(&app, &api, &cw_dex_router, paths, admin)?;
 
     // Create pools and add liquidity
     for path in paths {
