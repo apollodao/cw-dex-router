@@ -121,6 +121,27 @@ fn setup<'a>() -> (
         )
         .unwrap();
 
+    // Create pools and add liquidity for the paths defined as constants
+    for path in &[
+        UOSMO_UATOM_PATH.to_vec(),
+        UION_UATOM_PATH.to_vec(),
+        UOSMO_UATOM_UION_PATH.to_vec(),
+    ] {
+        for pool in path {
+            let pool_liquidity = vec![
+                Coin {
+                    denom: pool.1.to_string(),
+                    amount: Uint128::from(1000000u128),
+                },
+                Coin {
+                    denom: pool.2.to_string(),
+                    amount: Uint128::from(1000000u128),
+                },
+            ];
+            create_basic_pool(&app, pool_liquidity, &accs[0]);
+        }
+    }
+
     let code_ids = upload_wasm_files(&app, test_config.contracts, &accs[0]).unwrap();
 
     (app, api, accs, code_ids)
