@@ -25,10 +25,11 @@ pub enum ExecuteMsg {
         minimum_receive: Option<Uint128>,
         to: Option<String>,
     },
-    UpdatePath {
+    SetPath {
         offer_asset: AssetInfoUnchecked,
         ask_asset: AssetInfoUnchecked,
         path: SwapOperationsListUnchecked,
+        bidirectional: bool,
     },
     Callback(CallbackMsg),
 }

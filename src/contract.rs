@@ -74,19 +74,21 @@ pub fn execute(
                 to,
             )
         }
-        ExecuteMsg::UpdatePath {
+        ExecuteMsg::SetPath {
             offer_asset,
             ask_asset,
             path,
+            bidirectional,
         } => {
             let path = path.check(deps.as_ref())?;
             let api = deps.api;
-            update_path(
+            set_path(
                 deps,
                 info,
                 offer_asset.check(api)?,
                 ask_asset.check(api)?,
                 path,
+                bidirectional,
             )
         }
         ExecuteMsg::Callback(msg) => {
@@ -230,12 +232,13 @@ pub fn assert_minimum_receive(
     Ok(Response::default())
 }
 
-pub fn update_path(
+pub fn set_path(
     deps: DepsMut,
     info: MessageInfo,
     offer_asset: AssetInfo,
     ask_asset: AssetInfo,
     path: SwapOperationsList,
+    bidirectional: bool,
 ) -> Result<Response, ContractError> {
     ADMIN.assert_admin(deps.as_ref(), &info.sender)?;
 
@@ -251,12 +254,14 @@ pub fn update_path(
         ((&offer_asset).into(), (&ask_asset).into()),
         &path,
     )?;
-    // reverse path and store
-    PATHS.save(
-        deps.storage,
-        (ask_asset.into(), offer_asset.into()),
-        &path.reverse(),
-    )?;
+    // reverse path and store if `bidirectional` is true
+    if bidirectional {
+        PATHS.save(
+            deps.storage,
+            (ask_asset.into(), offer_asset.into()),
+            &path.reverse(),
+        )?;
+    }
     Ok(Response::default())
 }
 
