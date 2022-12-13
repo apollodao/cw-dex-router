@@ -15,12 +15,11 @@ use cw_asset::Asset;
 use cw_asset::AssetList;
 
 use cw_asset::{AssetInfo, AssetInfoUnchecked};
-#[cfg(feature = "osmosis")]
 use cw_dex::osmosis::OsmosisPool;
 use cw_dex::Pool;
 use cw_dex_router::msg::InstantiateMsg;
 
-use cw_dex_router::operations::SwapOperationUnchecked;
+use cw_dex_router::operations::{SwapOperation, SwapOperationUnchecked, SwapOperationsList};
 
 use cw_dex_router::helpers::{CwDexRouter, CwDexRouterUnchecked};
 use cw_dex_router::operations::SwapOperationsListUnchecked;
@@ -135,14 +134,13 @@ const UOSMO_UATOM_PATH: &[(u64, &str, &str); 1] = &[(1, UOSMO, UATOM)];
 const UION_UATOM_PATH: &[(u64, &str, &str); 1] = &[(2, UION, UATOM)];
 const UOSMO_UATOM_UION_PATH: &[(u64, &str, &str); 2] = &[(1, UOSMO, UATOM), (2, UATOM, UION)];
 
-fn osmosis_swap_operations_list_from_vec(vec: &[(u64, &str, &str)]) -> SwapOperationsListUnchecked {
-    SwapOperationsListUnchecked::new(
+fn osmosis_swap_operations_list_from_vec(vec: &[(u64, &str, &str)]) -> SwapOperationsList {
+    SwapOperationsList::new(
         vec.iter()
-            .map(|(pool_id, from, to)| {
-                let pool = Pool::Osmosis(OsmosisPool::new(pool_id.to_owned()));
-                let from = AssetInfoUnchecked::Native(from.to_string());
-                let to = AssetInfoUnchecked::Native(to.to_string());
-                SwapOperationUnchecked::new(pool, from, to)
+            .map(|(pool_id, from, to)| SwapOperation {
+                pool: Pool::Osmosis(OsmosisPool::unchecked(pool_id.to_owned())),
+                offer_asset_info: AssetInfo::Native(from.to_string()),
+                ask_asset_info: AssetInfo::Native(to.to_string()),
             })
             .collect(),
     )
@@ -165,7 +163,7 @@ fn set_paths<'a>(
             cw_dex_router.set_path_msg(
                 offer_asset.check(api).unwrap(),
                 ask_asset.check(api).unwrap(),
-                &path.check(api).unwrap(),
+                &path,
                 false,
             )
         })
@@ -205,12 +203,14 @@ fn create_basic_pool<'a>(
         .data
         .pool_id;
 
-    OsmosisPool::new(pool_id)
+    OsmosisPool::unchecked(pool_id)
 }
 
 #[test_case(&[((UOSMO, UATOM), UOSMO_UATOM_PATH)], UOSMO_UATOM_PATH, 1 => matches Err(_) ; "not admin")]
 #[test_case(&[((UOSMO, UATOM), UOSMO_UATOM_PATH)], UOSMO_UATOM_PATH, 0  ; "uosmo/uatom simple path")]
 #[test_case(&[((UOSMO, UION), UOSMO_UATOM_UION_PATH)], UOSMO_UATOM_UION_PATH, 0 ; "uosmo/uion two hops path")]
+#[test_case(&[((UOSMO, UION), &[(1337u64, UOSMO, UION)])], UOSMO_UATOM_UION_PATH, 0 => matches Err(_) ; "pool does not exist")]
+#[test_case(&[((UOSMO, UION), UOSMO_UATOM_PATH)], UOSMO_UATOM_UION_PATH, 0 => matches Err(_) ; "pool assets do not match path")]
 fn test_update_path_and_query_path_for_pair<'a>(
     paths: &[((&str, &str), &[(u64, &str, &str)])],
     output_path: &[(u64, &str, &str)],
@@ -226,9 +226,7 @@ fn test_update_path_and_query_path_for_pair<'a>(
     // Set paths
     set_paths(&app, &api, &cw_dex_router, paths, sender)?;
 
-    let expected_output_path = osmosis_swap_operations_list_from_vec(output_path)
-        .check(&api)
-        .unwrap();
+    let expected_output_path = osmosis_swap_operations_list_from_vec(output_path);
 
     // Query path for pair
     let querier_wrapper = QuerierWrapper::new(&app);
@@ -444,9 +442,7 @@ fn test_simulate_and_execute_swap_operations(
     }
 
     // Simulate swap operations
-    let operations = osmosis_swap_operations_list_from_vec(swap_operations)
-        .check(&api)
-        .unwrap();
+    let operations = osmosis_swap_operations_list_from_vec(swap_operations);
     let expected_out = cw_dex_router.simulate_swap_operations(
         &QuerierWrapper::new(&app),
         funds[0].amount,
