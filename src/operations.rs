@@ -1,7 +1,7 @@
 use crate::msg::CallbackMsg;
 use crate::ContractError;
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::{Addr, CosmosMsg, Deps, Env, Response, StdResult, Uint128};
+use cosmwasm_std::{Addr, CosmosMsg, Deps, Env, Response, Uint128};
 use cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cw_dex::traits::Pool as PoolTrait;
 use cw_dex::Pool;
@@ -32,17 +32,24 @@ pub type SwapOperationUnchecked = SwapOperationBase<String>;
 pub type SwapOperation = SwapOperationBase<Addr>;
 
 impl SwapOperationUnchecked {
-    pub fn check(&self, deps: Deps) -> StdResult<SwapOperation> {
+    pub fn check(&self, deps: Deps) -> Result<SwapOperation, ContractError> {
         let op = SwapOperation {
             ask_asset_info: self.ask_asset_info.check(deps.api)?,
             offer_asset_info: self.offer_asset_info.check(deps.api)?,
             pool: self.pool.clone(),
         };
-        op.pool.check(
-            deps,
-            &vec![op.offer_asset_info.clone(), op.ask_asset_info.clone()],
-        )?;
-        Ok(op)
+        // validate pool assets
+        let pool_assets = op.pool.get_pool_liquidity(deps)?;
+        if !vec![op.offer_asset_info.clone(), op.ask_asset_info.clone()]
+            .iter()
+            .all(|a| pool_assets.find(a).is_some())
+        {
+            Err(ContractError::InvalidSwapOperations {
+                operations: vec![op],
+            })
+        } else {
+            Ok(op)
+        }
     }
 }
 
@@ -119,7 +126,7 @@ impl SwapOperationsListUnchecked {
             .0
             .iter()
             .map(|x| x.check(deps))
-            .collect::<StdResult<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, ContractError>>()?;
 
         if operations.is_empty() {
             return Err(ContractError::MustProvideOperations);
