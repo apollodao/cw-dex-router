@@ -39,10 +39,8 @@ impl SwapOperationUnchecked {
             pool: self.pool.clone(),
         };
         // validate pool assets
-        let pool_assets = op.pool.get_pool_liquidity(deps)?;
-        if !vec![op.offer_asset_info.clone(), op.ask_asset_info.clone()]
-            .iter()
-            .all(|a| pool_assets.find(a).is_some())
+        let pool_assets = op.pool.pool_assets(deps)?;
+        if !pool_assets.contains(&op.offer_asset_info) || !pool_assets.contains(&op.ask_asset_info)
         {
             Err(ContractError::InvalidSwapOperations {
                 operations: vec![op],
