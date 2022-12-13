@@ -173,6 +173,7 @@ fn set_paths<'a>(
     cw_dex_router: &CwDexRouter,
     paths: &[((&str, &str), &[(u64, &str, &str)])],
     sender: &SigningAccount,
+    bidirectional: bool,
 ) -> RunnerResult<()> {
     // Set paths
     let set_path_msgs = paths
@@ -185,7 +186,7 @@ fn set_paths<'a>(
                 offer_asset.check(api).unwrap(),
                 ask_asset.check(api).unwrap(),
                 &path,
-                false,
+                bidirectional,
             )
         })
         .collect::<StdResult<Vec<CosmosMsg>>>()
@@ -227,13 +228,17 @@ fn create_basic_pool<'a>(
     OsmosisPool::unchecked(pool_id)
 }
 
-#[test_case(&[((UOSMO, UATOM), UOSMO_UATOM_PATH)], UOSMO_UATOM_PATH, 1 => matches Err(_) ; "not admin")]
-#[test_case(&[((UOSMO, UATOM), UOSMO_UATOM_PATH)], UOSMO_UATOM_PATH, 0  ; "uosmo/uatom simple path")]
-#[test_case(&[((UOSMO, UION), UOSMO_UATOM_UION_PATH)], UOSMO_UATOM_UION_PATH, 0 ; "uosmo/uion two hops path")]
-#[test_case(&[((UOSMO, UION), &[(1337u64, UOSMO, UION)])], UOSMO_UATOM_UION_PATH, 0 => matches Err(_) ; "pool does not exist")]
-#[test_case(&[((UOSMO, UION), UOSMO_UATOM_PATH)], UOSMO_UATOM_UION_PATH, 0 => matches Err(_) ; "pool assets do not match path")]
+#[test_case(&[((UOSMO, UATOM), UOSMO_UATOM_PATH)], false, UOSMO_UATOM_PATH, 1 => matches Err(_) ; "not admin")]
+#[test_case(&[((UOSMO, UATOM), UOSMO_UATOM_PATH)], false, UOSMO_UATOM_PATH, 0  ; "uosmo/uatom simple path")]
+#[test_case(&[((UOSMO, UION), UOSMO_UATOM_UION_PATH)], false, UOSMO_UATOM_UION_PATH, 0 ; "uosmo/uion two hops path")]
+#[test_case(&[((UOSMO, UATOM), UOSMO_UATOM_PATH)], true, UOSMO_UATOM_PATH, 0  ; "uosmo/uatom simple path bidirectional")]
+#[test_case(&[((UOSMO, UION), UOSMO_UATOM_UION_PATH)], true, UOSMO_UATOM_UION_PATH, 0 ; "uosmo/uion two hops path bidirectional")]
+#[test_case(&[((UOSMO, UION), &[(1337u64, UOSMO, UION)])], false, UOSMO_UATOM_UION_PATH, 0 => matches Err(_) ; "pool id does not exist")]
+#[test_case(&[((UION, UATOM), UOSMO_UATOM_PATH)], false, UOSMO_UATOM_UION_PATH, 0 => matches Err(_) ; "SwapOperation offer not in pool")]
+#[test_case(&[((UOSMO, UION), UOSMO_UATOM_PATH)], false, UOSMO_UATOM_UION_PATH, 0 => matches Err(_) ; "SwapOperation ask not in pool")]
 fn test_update_path_and_query_path_for_pair<'a>(
     paths: &[((&str, &str), &[(u64, &str, &str)])],
+    bidirectional: bool,
     output_path: &[(u64, &str, &str)],
     sender_acc_nr: usize,
 ) -> RunnerResult<()> {
@@ -245,7 +250,7 @@ fn test_update_path_and_query_path_for_pair<'a>(
         instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
 
     // Set paths
-    set_paths(&app, &api, &cw_dex_router, paths, sender)?;
+    set_paths(&app, &api, &cw_dex_router, paths, sender, bidirectional)?;
 
     let expected_output_path = osmosis_swap_operations_list_from_vec(output_path);
 
@@ -260,6 +265,17 @@ fn test_update_path_and_query_path_for_pair<'a>(
         .unwrap();
 
     assert_eq!(swap_operations, expected_output_path);
+
+    if bidirectional {
+        let swap_operations_reverse = cw_dex_router
+            .query_path_for_pair(
+                &querier_wrapper,
+                &expected_output_path.to(),
+                &expected_output_path.from(),
+            )
+            .unwrap();
+        assert_eq!(swap_operations_reverse, expected_output_path.reverse());
+    }
 
     Ok(())
 }
@@ -313,7 +329,7 @@ fn test_simulate_and_execute_basket_liquidate(
         instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"]).unwrap();
 
     // Set paths
-    set_paths(&app, &api, &cw_dex_router, paths, admin).unwrap();
+    set_paths(&app, &api, &cw_dex_router, paths, admin, false).unwrap();
 
     // Create pools and add liquidity
     for path in paths {
@@ -440,7 +456,7 @@ fn test_simulate_and_execute_swap_operations(
         instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
 
     // Set paths
-    set_paths(&app, &api, &cw_dex_router, paths, admin)?;
+    set_paths(&app, &api, &cw_dex_router, paths, admin, false)?;
 
     // Create pools and add liquidity
     for path in paths {
@@ -546,7 +562,7 @@ fn test_supported_ask_and_offer_assets(
         instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
 
     // Set paths
-    set_paths(&app, &api, &cw_dex_router, paths, admin)?;
+    set_paths(&app, &api, &cw_dex_router, paths, admin, false)?;
 
     // Create pools and add liquidity
     for path in paths {
