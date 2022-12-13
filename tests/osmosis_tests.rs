@@ -19,10 +19,9 @@ use cw_dex::osmosis::OsmosisPool;
 use cw_dex::Pool;
 use cw_dex_router::msg::InstantiateMsg;
 
-use cw_dex_router::operations::{SwapOperation, SwapOperationUnchecked, SwapOperationsList};
+use cw_dex_router::operations::{SwapOperation, SwapOperationsList};
 
 use cw_dex_router::helpers::{CwDexRouter, CwDexRouterUnchecked};
-use cw_dex_router::operations::SwapOperationsListUnchecked;
 
 use cw_it::config::Contract;
 use cw_it::config::TestConfig;

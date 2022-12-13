@@ -1,2 +1,2 @@
 #[cfg(feature = "osmosis")]
-mod tests;
+mod osmosis_tests;
