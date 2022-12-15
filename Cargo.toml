@@ -52,14 +52,14 @@ optimize-arm64 = """docker run --rm -v "$(pwd)":/code \
 [dependencies]
 cosmwasm-std = "1.1"
 cosmwasm-schema = "1.1"
-cw-asset = { git="https://github.com/apollodao/cw-asset.git", rev = "5e51773da42ef82faa67576454e8c4b0971097f2" }
+cw-asset = { git="https://github.com/apollodao/cw-asset.git", rev = "057fb193013ad4adfc25063b99960972d1d208bc" }
 cw-controllers = "0.16"
-cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "ba214f39f1dc2f422243e0c783d2d24ddffdcc2a" }
+cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "b9d18cfbba8aa09ae4ee9459d308cda87ae5ffb3" }
 cw-storage-plus = "0.16"
 cw2 = "0.16"
 cw20 = "0.16"
 thiserror = {version = "1.0.31"}
-apollo-utils = { git = "https://github.com/apollodao/apollo-utils.git", rev = "0421a13a2b7cbbce76ea88563a9ef4fce3d1e6ee" }
+apollo-utils = { git = "https://github.com/apollodao/apollo-utils.git", rev = "bfd1abd8cd9716dccad3e74aeb3704cad9f1f41a" }
 
 [dev-dependencies]
 apollo-proto-rust = {git = "https://github.com/apollodao/apollo-proto-rust", tag = "v0.3.0"}
@@ -67,5 +67,5 @@ cw-multi-test = "0.16"
 osmo-bindings = "0.5.1"
 testcontainers = { version = "0.14.0" , features = ["experimental"] }
 test-case = "2.2.2"
-cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "64baab334a3982d0b41fbc2810d9e311c14337da" }
-osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust", rev = "52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3" }
+cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "602e1bc3ac61cafcdc87ec971956b333916687d2" }
+osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust", rev = "430236bd63f26d618e11e59709a56c808c4d427c" }

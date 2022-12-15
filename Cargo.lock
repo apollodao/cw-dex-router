@@ -52,19 +52,9 @@ dependencies = [
 [[package]]
 name = "apollo-utils"
 version = "0.1.0"
-source = "git+https://github.com/apollodao/apollo-utils.git?rev=0421a13a2b7cbbce76ea88563a9ef4fce3d1e6ee#0421a13a2b7cbbce76ea88563a9ef4fce3d1e6ee"
+source = "git+https://github.com/apollodao/apollo-utils.git?rev=bfd1abd8cd9716dccad3e74aeb3704cad9f1f41a#bfd1abd8cd9716dccad3e74aeb3704cad9f1f41a"
 dependencies = [
  "cosmwasm-schema",
- "cosmwasm-std",
- "cw-asset",
- "cw20 0.16.0",
-]
-
-[[package]]
-name = "apollo-utils"
-version = "0.1.0"
-source = "git+https://github.com/apollodao/apollo-utils.git?rev=dd3da52653d3dc350b20b46f363ebcfdcd64aa27#dd3da52653d3dc350b20b46f363ebcfdcd64aa27"
-dependencies = [
  "cosmwasm-std",
  "cw-asset",
  "cw20 0.16.0",
@@ -321,9 +311,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.77"
+version = "1.0.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9f73505338f7d905b19d18738976aae232eb46b8efc15554ffc56deb5d9ebe4"
+checksum = "a20104e2335ce8a659d6dd92a51a767a0c062599c73b343fd152cb401e828c3d"
 dependencies = [
  "jobserver",
 ]
@@ -640,7 +630,7 @@ dependencies = [
 [[package]]
 name = "cw-asset"
 version = "0.3.0"
-source = "git+https://github.com/apollodao/cw-asset.git?rev=5e51773da42ef82faa67576454e8c4b0971097f2#5e51773da42ef82faa67576454e8c4b0971097f2"
+source = "git+https://github.com/apollodao/cw-asset.git?rev=057fb193013ad4adfc25063b99960972d1d208bc#057fb193013ad4adfc25063b99960972d1d208bc"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
@@ -682,9 +672,9 @@ dependencies = [
 [[package]]
 name = "cw-dex"
 version = "0.0.1"
-source = "git+https://github.com/apollodao/cw-dex?rev=ba214f39f1dc2f422243e0c783d2d24ddffdcc2a#ba214f39f1dc2f422243e0c783d2d24ddffdcc2a"
+source = "git+https://github.com/apollodao/cw-dex?rev=b9d18cfbba8aa09ae4ee9459d308cda87ae5ffb3#b9d18cfbba8aa09ae4ee9459d308cda87ae5ffb3"
 dependencies = [
- "apollo-utils 0.1.0 (git+https://github.com/apollodao/apollo-utils.git?rev=dd3da52653d3dc350b20b46f363ebcfdcd64aa27)",
+ "apollo-utils",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
@@ -693,7 +683,7 @@ dependencies = [
  "cw-utils 0.16.0",
  "cw20 0.10.3",
  "cw20 0.16.0",
- "osmosis-std",
+ "osmosis-std 0.12.0 (git+https://github.com/apollodao/osmosis-rust?rev=52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3)",
  "stake-cw20",
  "thiserror",
  "uint",
@@ -705,7 +695,7 @@ name = "cw-dex-router"
 version = "0.1.0"
 dependencies = [
  "apollo-proto-rust",
- "apollo-utils 0.1.0 (git+https://github.com/apollodao/apollo-utils.git?rev=0421a13a2b7cbbce76ea88563a9ef4fce3d1e6ee)",
+ "apollo-utils",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-asset",
@@ -726,7 +716,7 @@ dependencies = [
 [[package]]
 name = "cw-it"
 version = "0.1.0"
-source = "git+https://github.com/apollodao/cw-it.git?rev=64baab334a3982d0b41fbc2810d9e311c14337da#64baab334a3982d0b41fbc2810d9e311c14337da"
+source = "git+https://github.com/apollodao/cw-it.git?rev=602e1bc3ac61cafcdc87ec971956b333916687d2#602e1bc3ac61cafcdc87ec971956b333916687d2"
 dependencies = [
  "anyhow",
  "config",
@@ -734,7 +724,6 @@ dependencies = [
  "cosmrs",
  "cosmwasm-schema",
  "cosmwasm-std",
- "dotenv",
  "downloader",
  "git2",
  "git2_credentials",
@@ -1122,12 +1111,6 @@ name = "dlv-list"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0688c2a7f92e427f44895cd63841bff7b29f8d7a1648b9e7e07a4a365b2e1257"
-
-[[package]]
-name = "dotenv"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "downloader"
@@ -2134,16 +2117,42 @@ dependencies = [
 [[package]]
 name = "osmosis-std"
 version = "0.12.0"
-source = "git+https://github.com/apollodao/osmosis-rust?rev=52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3#52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3"
+source = "git+https://github.com/apollodao/osmosis-rust?rev=430236bd63f26d618e11e59709a56c808c4d427c#430236bd63f26d618e11e59709a56c808c4d427c"
 dependencies = [
  "chrono",
  "cosmwasm-std",
- "osmosis-std-derive",
+ "osmosis-std-derive 0.12.0 (git+https://github.com/apollodao/osmosis-rust?rev=430236bd63f26d618e11e59709a56c808c4d427c)",
  "prost 0.11.3",
  "prost-types",
  "schemars",
  "serde",
  "serde-cw-value",
+]
+
+[[package]]
+name = "osmosis-std"
+version = "0.12.0"
+source = "git+https://github.com/apollodao/osmosis-rust?rev=52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3#52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3"
+dependencies = [
+ "chrono",
+ "cosmwasm-std",
+ "osmosis-std-derive 0.12.0 (git+https://github.com/apollodao/osmosis-rust?rev=52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3)",
+ "prost 0.11.3",
+ "prost-types",
+ "schemars",
+ "serde",
+ "serde-cw-value",
+]
+
+[[package]]
+name = "osmosis-std-derive"
+version = "0.12.0"
+source = "git+https://github.com/apollodao/osmosis-rust?rev=430236bd63f26d618e11e59709a56c808c4d427c#430236bd63f26d618e11e59709a56c808c4d427c"
+dependencies = [
+ "itertools",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -2160,18 +2169,19 @@ dependencies = [
 [[package]]
 name = "osmosis-testing"
 version = "0.12.0"
-source = "git+https://github.com/apollodao/osmosis-rust?rev=52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3#52ca8eaa4b2926fea01a68f4d7e7253ad29d88b3"
+source = "git+https://github.com/apollodao/osmosis-rust?rev=430236bd63f26d618e11e59709a56c808c4d427c#430236bd63f26d618e11e59709a56c808c4d427c"
 dependencies = [
  "base64",
  "bindgen",
  "cosmrs",
  "cosmwasm-std",
  "itertools",
- "osmosis-std",
+ "osmosis-std 0.12.0 (git+https://github.com/apollodao/osmosis-rust?rev=430236bd63f26d618e11e59709a56c808c4d427c)",
  "prost 0.11.3",
  "serde",
  "serde_json",
  "thiserror",
+ "tonic",
 ]
 
 [[package]]
@@ -3405,9 +3415,9 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.5.9"
+version = "0.5.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d82e1a7758622a465f8cee077614c73484dac5b836c02ff6a40d5d1010324d7"
+checksum = "1333c76748e868a4d9d1017b5ab53171dfd095f70c712fdb4653a406547f598f"
 dependencies = [
  "serde",
 ]
