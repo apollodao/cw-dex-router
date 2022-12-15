@@ -148,14 +148,14 @@ impl CwDexRouter {
     pub fn set_path_msg(
         &self,
         offer_asset: AssetInfo,
-        ask_aaset: AssetInfo,
+        ask_asset: AssetInfo,
         path: &SwapOperationsList,
         bidirectional: bool,
     ) -> StdResult<CosmosMsg> {
         self.call(
             ExecuteMsg::SetPath {
                 offer_asset: offer_asset.into(),
-                ask_asset: ask_aaset.into(),
+                ask_asset: ask_asset.into(),
                 path: path.into(),
                 bidirectional,
             },
