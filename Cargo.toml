@@ -9,7 +9,7 @@ homepage = "https://apollo.farm"
 documentation = "https://docs.rs/cw-dex-router"
 license = "MPL-2.0"
 description = "A cosmwasm contract for routing swaps across multiple dexes."
-keywords = ["cosmwasm", "smart", "contract", "dex", "router", "osmosis", "astroport", "web3"]
+keywords = ["cosmwasm", "dex", "router", "osmosis", "astroport"]
 
 exclude = [
   # Those files are rust-optimizer artifacts. You might want to commit them for convenience but they should not be part of the source code publication.
