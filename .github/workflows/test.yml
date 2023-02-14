@@ -8,7 +8,7 @@ env:
 
 jobs:
   test:
-    name: Test Suite
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -26,6 +26,36 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --locked --lib
+          args: --locked --lib --all-features
+        env:
+          RUST_BACKTRACE: 1
+  test:
+    name: Integration tests (Osmosis)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.65.0
+          target: wasm32-unknown-unknown
+          override: true
+
+      - name: Compile contract for Osmosis
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --locked --target wasm32-unknown-unknown --release --features osmosis
+        env:
+          RUST_BACKTRACE: 1
+
+      - name: Run Osmosis integration tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --locked --test osmosis_tests --features osmosis
         env:
           RUST_BACKTRACE: 1
