@@ -10,10 +10,8 @@ use cosmwasm_std::{
     StdError, StdResult, Uint128, WasmMsg, WasmQuery,
 };
 
-use crate::{
-    msg::{ExecuteMsg, InstantiateMsg, QueryMsg},
-    operations::SwapOperationsList,
-};
+use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use crate::operations::SwapOperationsList;
 
 #[cw_serde]
 pub struct CwDexRouterBase<T>(pub T);
@@ -239,7 +237,8 @@ impl CwDexRouter {
     }
 }
 
-/// Assert that a specific native token in the form of an `Asset` was sent to the contract.
+/// Assert that a specific native token in the form of an `Asset` was sent to
+/// the contract.
 pub fn assert_native_token_received(info: &MessageInfo, asset: &Asset) -> StdResult<()> {
     let coin: Coin = asset.try_into()?;
 

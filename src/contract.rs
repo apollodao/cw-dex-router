@@ -161,10 +161,11 @@ pub fn execute_swap_operations(
     let target_asset_info = operations.to();
     let offer_asset_info = operations.from();
 
-    //1. Validate sent asset. We only do this if the passed in optional `offer_amount`
-    //   and in this case we do transfer from on it, given that the offer asset is
-    //   a CW20. Otherwise we assume the caller already sent funds and in the first
-    //   call of execute_swap_operation, we just use the whole contracts balance.
+    //1. Validate sent asset. We only do this if the passed in optional
+    // `offer_amount`   and in this case we do transfer from on it, given that
+    // the offer asset is   a CW20. Otherwise we assume the caller already sent
+    // funds and in the first   call of execute_swap_operation, we just use the
+    // whole contracts balance.
     let mut msgs: Vec<CosmosMsg> = vec![];
     if let Some(offer_amount) = offer_amount {
         msgs.extend(receive_asset(

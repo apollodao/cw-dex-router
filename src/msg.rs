@@ -98,7 +98,8 @@ pub enum QueryMsg {
     #[returns(Vec<AssetInfo>)]
     SupportedOfferAssets { ask_asset: AssetInfoUnchecked },
 
-    /// Returns all the assets to which there are paths from a given offer asset.
+    /// Returns all the assets to which there are paths from a given offer
+    /// asset.
     #[returns(Vec<AssetInfo>)]
     SupportedAskAssets { offer_asset: AssetInfoUnchecked },
 }

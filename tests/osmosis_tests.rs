@@ -4,15 +4,10 @@ use std::str::FromStr;
 
 use cosmwasm_std::Api;
 
-use cosmwasm_std::Coin;
-use cosmwasm_std::CosmosMsg;
+use cosmwasm_std::{Coin, CosmosMsg};
 
-use cosmwasm_std::QuerierWrapper;
-use cosmwasm_std::StdError;
-use cosmwasm_std::StdResult;
-use cosmwasm_std::Uint128;
-use cw_asset::Asset;
-use cw_asset::AssetList;
+use cosmwasm_std::{QuerierWrapper, StdError, StdResult, Uint128};
+use cw_asset::{Asset, AssetList};
 
 use cw_asset::{AssetInfo, AssetInfoUnchecked};
 use cw_dex::osmosis::OsmosisPool;
@@ -23,21 +18,17 @@ use cw_dex_router::operations::{SwapOperation, SwapOperationsList};
 
 use cw_dex_router::helpers::{CwDexRouter, CwDexRouterUnchecked};
 
-use cw_it::config::Contract;
-use cw_it::config::TestConfig;
+use cw_it::config::{Contract, TestConfig};
 use cw_it::mock_api::OsmosisMockApi;
-use osmosis_testing::cosmrs::proto::cosmos::bank::v1beta1::QueryAllBalancesRequest;
-use osmosis_testing::cosmrs::proto::cosmos::bank::v1beta1::QueryBalanceRequest;
+use osmosis_testing::cosmrs::proto::cosmos::bank::v1beta1::{
+    QueryAllBalancesRequest, QueryBalanceRequest,
+};
 
 use osmosis_testing::cosmrs::proto::cosmwasm::wasm::v1::MsgExecuteContractResponse;
 use osmosis_testing::cosmrs::Any;
-use osmosis_testing::Bank;
-use osmosis_testing::Gamm;
-use osmosis_testing::OsmosisTestApp;
-use osmosis_testing::Runner;
-use osmosis_testing::RunnerResult;
-use osmosis_testing::SigningAccount;
-use osmosis_testing::{Account, Module, Wasm};
+use osmosis_testing::{
+    Account, Bank, Gamm, Module, OsmosisTestApp, Runner, RunnerResult, SigningAccount, Wasm,
+};
 
 use test_case::test_case;
 
