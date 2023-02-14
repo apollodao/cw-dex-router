@@ -229,7 +229,7 @@ impl From<SwapOperationsList> for SwapOperationsListUnchecked {
 #[cfg(test)]
 mod unit_tests {
     use crate::operations::{SwapOperation, SwapOperationsList};
-    use cw_asset::AssetInfo;
+    use apollo_cw_asset::AssetInfo;
     use cw_dex::osmosis::OsmosisPool;
     use cw_dex::Pool;
 
