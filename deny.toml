@@ -1,0 +1,55 @@
+# cargo-deny is really only ever intended to run on the "normal" tier-1 targets
+targets = [
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "x86_64-unknown-linux-musl" },
+]
+
+[advisories]
+vulnerability = "deny"
+unmaintained = "deny"
+notice = "deny"
+unsound = "deny"
+ignore = [
+    # Potential unaligned pointer read on windows. Doesn't happen in practice.
+    "RUSTSEC-2021-0145",
+    # Not valid regarding the `chrono` dependency on `time`. May be valid for
+    # other crates. See
+    # https://github.com/chronotope/chrono/issues/602#issuecomment-1075915577
+    "RUSTSEC-2020-0071", # Alias: RUSTSEC-2020-26235
+]
+
+[bans]
+multiple-versions = "allow" # TODO:update this
+deny = []
+skip = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-git = []
+[sources.allow-org]
+github = [
+    "apollodao",
+]
+
+[licenses]
+unlicensed = "deny"
+copyleft = "deny"
+# We want really high confidence when inferring licenses from text
+confidence-threshold = 0.93
+allow = ["Apache-2.0", "MIT", "BSD-3-Clause", "MPL-2.0", "ISC"]
+exceptions = [{ allow = ["Unicode-DFS-2016"], name = "unicode-ident" }]
+
+[[licenses.clarify]]
+name = "webpki"
+expression = "ISC"
+license-files = [
+    { path = "LICENSE", hash = 0x001c7e6c },
+]
+
+[[licenses.clarify]]
+name = "ring"
+expression = "ISC"
+license-files = [
+    { path = "LICENSE", hash = 0xbd0eed23 },
+]
