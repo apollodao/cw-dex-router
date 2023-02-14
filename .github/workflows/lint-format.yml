@@ -1,0 +1,50 @@
+name: Linting and formatting
+on:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  RUSTFLAGS: -D warnings
+
+jobs:
+  lint-and-format:
+    name: Lint and check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          components: rustfmt, clippy
+
+      - name: Install cargo-machete
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-machete
+
+      - name: Run cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: nightly
+          command: clippy
+          args: --all-features -- -D warnings
+
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: nightly
+          command: fmt
+          args: --all -- --check --verbose
+
+      - name: Run cargo machete
+        uses: actions-rs/cargo@v1
+        with:
+          command: machete
+
+      - name: Lint todo comments
+        run: ./scripts/todo-lint.sh

@@ -1,0 +1,40 @@
+name: Test coverage
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  coverage:
+    name: Check unit test coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          target: wasm32-unknown-unknown
+          override: true
+
+      - name: Install tarpaulin
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: nightly
+          command: install
+          args: cargo-tarpaulin --version 0.20.1
+
+      - name: Run code coverage check with tarpaulin
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: nightly
+          command: tarpaulin
+          args: --lib --workspace --timeout 120

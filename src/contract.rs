@@ -1,3 +1,4 @@
+use apollo_cw_asset::{Asset, AssetInfo, AssetInfoUnchecked, AssetList, AssetListUnchecked};
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
@@ -6,7 +7,6 @@ use cosmwasm_std::{
 };
 use cw2::set_contract_version;
 use cw20::Cw20ReceiveMsg;
-use cw_asset::{Asset, AssetInfo, AssetInfoUnchecked, AssetList, AssetListUnchecked};
 
 use crate::error::ContractError;
 use crate::helpers::{receive_asset, receive_assets};
@@ -145,6 +145,7 @@ pub fn receive_cw20(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn execute_swap_operations(
     deps: DepsMut,
     env: Env,
@@ -161,10 +162,11 @@ pub fn execute_swap_operations(
     let target_asset_info = operations.to();
     let offer_asset_info = operations.from();
 
-    //1. Validate sent asset. We only do this if the passed in optional `offer_amount`
-    //   and in this case we do transfer from on it, given that the offer asset is
-    //   a CW20. Otherwise we assume the caller already sent funds and in the first
-    //   call of execute_swap_operation, we just use the whole contracts balance.
+    //1. Validate sent asset. We only do this if the passed in optional
+    // `offer_amount`   and in this case we do transfer from on it, given that
+    // the offer asset is   a CW20. Otherwise we assume the caller already sent
+    // funds and in the first   call of execute_swap_operation, we just use the
+    // whole contracts balance.
     let mut msgs: Vec<CosmosMsg> = vec![];
     if let Some(offer_amount) = offer_amount {
         msgs.extend(receive_asset(

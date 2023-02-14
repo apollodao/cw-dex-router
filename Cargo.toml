@@ -1,8 +1,15 @@
 [package]
-authors = ["Sturdy <sturdy@apollo.farm>"]
+authors = ["Apollo Devs <shared@apollo.farm>"]
 edition = "2021"
 name = "cw-dex-router"
 version = "0.1.0"
+readme = "README.md"
+repository = "https://github.com/apollodao/cw-dex-router"
+homepage = "https://apollo.farm"
+documentation = "https://docs.rs/cw-dex-router"
+license = "MPL-2.0"
+description = "A cosmwasm contract for routing swaps across multiple dexes."
+keywords = ["cosmwasm", "smart", "contract", "dex", "router", "osmosis", "astroport", "web3"]
 
 exclude = [
   # Those files are rust-optimizer artifacts. You might want to commit them for convenience but they should not be part of the source code publication.
@@ -28,13 +35,10 @@ rpath = false
 
 [features]
 default = []
-# for more explicit tests, cargo test --features=backtraces
-backtraces = ["cosmwasm-std/backtraces"]
 # use library feature to disable all instantiate/execute/query exports
 library = []
 osmosis = ["cw-dex/osmosis"]
 astroport = ["cw-dex/astroport"]
-junoswap = ["cw-dex/junoswap"]
 
 
 [package.metadata.scripts]
@@ -50,22 +54,18 @@ optimize-arm64 = """docker run --rm -v "$(pwd)":/code \
 """
 
 [dependencies]
-cosmwasm-std = "1.1"
-cosmwasm-schema = "1.1"
-cw-asset = { git="https://github.com/apollodao/cw-asset.git", rev = "057fb193013ad4adfc25063b99960972d1d208bc" }
-cw-controllers = "0.16"
-cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "09d95ec900d186236567d094f6f2751d797e3975" }
-cw-storage-plus = "0.16"
-cw2 = "0.16"
-cw20 = "0.16"
-thiserror = {version = "1.0.31"}
-apollo-utils = { git = "https://github.com/apollodao/apollo-utils.git", rev = "bfd1abd8cd9716dccad3e74aeb3704cad9f1f41a" }
+cosmwasm-std = "1.2.1"
+cosmwasm-schema = "1.2.1"
+apollo-cw-asset = "0.1.0"
+cw-controllers = "1.0.1"
+cw-dex = "0.1.0"
+cw-storage-plus = "1.0.1"
+cw2 = "1.0.1"
+cw20 = "1.0.1"
+thiserror = "1.0.38"
+apollo-utils = "0.1.0"
 
 [dev-dependencies]
-apollo-proto-rust = {git = "https://github.com/apollodao/apollo-proto-rust", tag = "v0.3.0"}
-cw-multi-test = "0.16"
-osmo-bindings = "0.5.1"
-testcontainers = { version = "0.14.0" , features = ["experimental"] }
-test-case = "2.2.2"
-cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "602e1bc3ac61cafcdc87ec971956b333916687d2" }
+test-case = "3.0.0"
+cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "1a3eea575ef82e71460db7296a9e0b5ffa98dcff" }
 osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust", rev = "430236bd63f26d618e11e59709a56c808c4d427c" }

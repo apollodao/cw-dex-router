@@ -1,8 +1,8 @@
 use crate::msg::CallbackMsg;
 use crate::ContractError;
+use apollo_cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, CosmosMsg, Deps, Env, Response, Uint128};
-use cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cw_dex::traits::Pool as PoolTrait;
 use cw_dex::Pool;
 
@@ -160,14 +160,14 @@ impl SwapOperationsList {
     pub fn reverse(&self) -> Self {
         let mut operations = self
             .0
-            .to_vec()
-            .into_iter()
+            .iter()
+            .cloned()
             .map(|op| {
-                let mut op = op.clone();
+                let mut op = op;
                 let tmp = op.offer_asset_info.clone();
                 op.offer_asset_info = op.ask_asset_info.clone();
                 op.ask_asset_info = tmp;
-                op.clone()
+                op
             })
             .collect::<Vec<SwapOperation>>();
         operations.reverse();
@@ -229,7 +229,7 @@ impl From<SwapOperationsList> for SwapOperationsListUnchecked {
 #[cfg(test)]
 mod unit_tests {
     use crate::operations::{SwapOperation, SwapOperationsList};
-    use cw_asset::AssetInfo;
+    use apollo_cw_asset::AssetInfo;
     use cw_dex::osmosis::OsmosisPool;
     use cw_dex::Pool;
 
