@@ -32,7 +32,6 @@ default = []
 library = []
 osmosis = ["cw-dex/osmosis"]
 astroport = ["cw-dex/astroport"]
-junoswap = ["cw-dex/junoswap"]
 
 
 [package.metadata.scripts]
@@ -52,7 +51,7 @@ cosmwasm-std = "1.1"
 cosmwasm-schema = "1.1"
 cw-asset = { git="https://github.com/apollodao/cw-asset.git", rev = "057fb193013ad4adfc25063b99960972d1d208bc" }
 cw-controllers = "0.16"
-cw-dex = {git = "https://github.com/apollodao/cw-dex", rev = "09d95ec900d186236567d094f6f2751d797e3975" }
+cw-dex = "0.1.0"
 cw-storage-plus = "0.16"
 cw2 = "0.16"
 cw20 = "0.16"
