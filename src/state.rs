@@ -1,4 +1,4 @@
-use cw_asset::AssetInfoKey;
+use apollo_cw_asset::AssetInfoKey;
 use cw_controllers::Admin;
 use cw_storage_plus::Map;
 

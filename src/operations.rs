@@ -1,8 +1,8 @@
 use crate::msg::CallbackMsg;
 use crate::ContractError;
+use apollo_cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, CosmosMsg, Deps, Env, Response, Uint128};
-use cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cw_dex::traits::Pool as PoolTrait;
 use cw_dex::Pool;
 
