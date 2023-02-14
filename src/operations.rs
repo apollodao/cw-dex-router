@@ -160,14 +160,14 @@ impl SwapOperationsList {
     pub fn reverse(&self) -> Self {
         let mut operations = self
             .0
-            .to_vec()
-            .into_iter()
+            .iter()
+            .cloned()
             .map(|op| {
-                let mut op = op.clone();
+                let mut op = op;
                 let tmp = op.offer_asset_info.clone();
                 op.offer_asset_info = op.ask_asset_info.clone();
                 op.ask_asset_info = tmp;
-                op.clone()
+                op
             })
             .collect::<Vec<SwapOperation>>();
         operations.reverse();

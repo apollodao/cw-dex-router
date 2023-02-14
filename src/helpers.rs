@@ -1,9 +1,9 @@
 use std::vec;
 
+use apollo_cw_asset::{Asset, AssetInfo, AssetInfoBase, AssetList};
 use apollo_utils::assets::separate_natives_and_cw20s;
 use cosmwasm_schema::cw_serde;
 use cw20::{Cw20Coin, Cw20ExecuteMsg};
-use apollo_cw_asset::{Asset, AssetInfo, AssetInfoBase, AssetList};
 
 use cosmwasm_std::{
     to_binary, Addr, Api, Coin, CosmosMsg, Env, MessageInfo, QuerierWrapper, QueryRequest,
@@ -50,7 +50,7 @@ impl CwDexRouterUnchecked {
             admin,
             msg: to_binary(&InstantiateMsg {})?,
             funds: vec![],
-            label: label.unwrap_or("cw-dex-router".to_string()),
+            label: label.unwrap_or_else(|| "cw-dex-router".to_string()),
         }))
     }
 }

@@ -145,6 +145,7 @@ pub fn receive_cw20(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn execute_swap_operations(
     deps: DepsMut,
     env: Env,
