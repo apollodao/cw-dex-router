@@ -1,1 +1,0 @@
-5aa27f2cdd926fe902aff838f7703584e4a670d954ab06637dda897e656e52bd  ./target/wasm32-unknown-unknown/release/cw_dex_router.wasm
