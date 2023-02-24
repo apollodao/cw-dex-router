@@ -1,3 +1,5 @@
+mod test_helpers;
+
 #[cfg(feature = "osmosis")]
 mod osmosis_tests {
     use std::collections::HashMap;
@@ -6,10 +8,11 @@ mod osmosis_tests {
 
     use cosmwasm_std::Api;
 
+    use cosmwasm_std::testing::MockApi;
     use cosmwasm_std::{Coin, CosmosMsg};
 
     use apollo_cw_asset::{Asset, AssetList};
-    use cosmwasm_std::{QuerierWrapper, StdError, StdResult, Uint128};
+    use cosmwasm_std::{StdError, StdResult, Uint128};
 
     use apollo_cw_asset::{AssetInfo, AssetInfoUnchecked};
     use cw_dex::osmosis::OsmosisPool;
@@ -21,17 +24,21 @@ mod osmosis_tests {
     use cw_dex_router::helpers::{CwDexRouter, CwDexRouterUnchecked};
 
     use cw_it::config::{Contract, TestConfig};
-    use cw_it::mock_api::OsmosisMockApi;
-    use osmosis_testing::cosmrs::proto::cosmos::bank::v1beta1::{
+    use osmosis_test_tube::cosmrs::proto::cosmos::bank::v1beta1::{
         QueryAllBalancesRequest, QueryBalanceRequest,
     };
 
-    use osmosis_testing::cosmrs::proto::cosmwasm::wasm::v1::MsgExecuteContractResponse;
-    use osmosis_testing::cosmrs::Any;
-    use osmosis_testing::{
-        Account, Bank, Gamm, Module, OsmosisTestApp, Runner, RunnerResult, SigningAccount, Wasm,
+    use osmosis_test_tube::cosmrs::proto::cosmwasm::wasm::v1::MsgExecuteContractResponse;
+    use osmosis_test_tube::cosmrs::Any;
+    use osmosis_test_tube::{
+        Account, Bank, Gamm, Module, OsmosisTestApp, Runner, RunnerError, RunnerResult,
+        SigningAccount, Wasm,
     };
 
+    use crate::test_helpers::{
+        query_path_for_pair, query_supported_ask_assets, query_supported_offer_assets,
+        simulate_basket_liquidate, simulate_swap_operations,
+    };
     use test_case::test_case;
 
     const TEST_CONFIG_PATH: &str = "tests/configs/osmosis.yaml";
@@ -75,12 +82,13 @@ mod osmosis_tests {
                 Some("cw-dex-router"),
                 &[],
                 signer,
-            )
-            .map_err(|e| StdError::generic_err(format!("{:?}", e)))?
+            )?
             .data
             .address;
 
-        Ok(CwDexRouterUnchecked::new(contract_addr).check(api)?)
+        Ok(CwDexRouterUnchecked::new(contract_addr)
+            .check(api)
+            .map_err(|e| RunnerError::GenericError(e.to_string()))?)
     }
 
     /// Admin account is always the first account in the list
@@ -90,7 +98,7 @@ mod osmosis_tests {
         Vec<SigningAccount>,
         HashMap<String, u64>,
     ) {
-        let api = OsmosisMockApi::new();
+        let api = MockApi::default();
 
         // let docker: Cli = Cli::default();
         // let app = App::new(TEST_CONFIG_PATH, &docker);
@@ -194,13 +202,15 @@ mod osmosis_tests {
         runner: &'a impl Runner<'a>,
         address: String,
         denom: String,
-    ) -> StdResult<Uint128> {
+    ) -> RunnerResult<Uint128> {
         Bank::new(runner)
             .query_balance(&QueryBalanceRequest { address, denom })
             .unwrap()
             .balance
             .map(|c| Uint128::from_str(&c.amount).unwrap())
-            .ok_or(StdError::generic_err("Bank balance query failed"))
+            .ok_or(RunnerError::GenericError(
+                "Bank balance query failed".to_string(),
+            ))
     }
 
     fn create_basic_pool<'a>(
@@ -247,25 +257,24 @@ mod osmosis_tests {
         let expected_output_path = osmosis_swap_operations_list_from_vec(output_path);
 
         // Query path for pair
-        let querier_wrapper = QuerierWrapper::new(&app);
-        let swap_operations = cw_dex_router
-            .query_path_for_pair(
-                &querier_wrapper,
-                &expected_output_path.from(),
-                &expected_output_path.to(),
-            )
-            .unwrap();
+        let swap_operations = query_path_for_pair(
+            &app,
+            &cw_dex_router.addr().to_string(),
+            &expected_output_path.from(),
+            &expected_output_path.to(),
+        )
+        .unwrap();
 
         assert_eq!(swap_operations, expected_output_path);
 
         if bidirectional {
-            let swap_operations_reverse = cw_dex_router
-                .query_path_for_pair(
-                    &querier_wrapper,
-                    &expected_output_path.to(),
-                    &expected_output_path.from(),
-                )
-                .unwrap();
+            let swap_operations_reverse = query_path_for_pair(
+                &app,
+                &cw_dex_router.addr().to_string(),
+                &expected_output_path.to(),
+                &expected_output_path.from(),
+            )
+            .unwrap();
             assert_eq!(swap_operations_reverse, expected_output_path.reverse());
         }
 
@@ -370,15 +379,14 @@ mod osmosis_tests {
         println!("balances before: {:?}", balances);
 
         // Simulate swap
-        let querier = QuerierWrapper::new(&app);
-        let expected_out = cw_dex_router
-            .simulate_basket_liquidate(
-                &querier,
-                offer_assets.clone(),
-                &receive_asset,
-                Some(sender.address()),
-            )
-            .unwrap();
+        let expected_out = simulate_basket_liquidate(
+            &app,
+            &cw_dex_router.addr().to_string(),
+            offer_assets.clone(),
+            &receive_asset,
+            Some(sender.address()),
+        )
+        .unwrap();
         println!("expected out: {:?}", expected_out);
 
         // Execute swap
@@ -472,8 +480,9 @@ mod osmosis_tests {
 
         // Simulate swap operations
         let operations = osmosis_swap_operations_list_from_vec(swap_operations);
-        let expected_out = cw_dex_router.simulate_swap_operations(
-            &QuerierWrapper::new(&app),
+        let expected_out = simulate_swap_operations(
+            &app,
+            &cw_dex_router.addr().to_string(),
             funds[0].amount,
             &operations,
             Some(sender.address()),
@@ -583,13 +592,12 @@ mod osmosis_tests {
         }
 
         // Query supported offer assets
-        let querier = QuerierWrapper::new(&app);
         let supported_offer_assets =
-            cw_dex_router.query_supported_offer_assets(&querier, &ask_asset)?;
+            query_supported_offer_assets(&app, &cw_dex_router.addr().to_string(), &ask_asset)?;
 
         // Query supported ask assets
         let supported_ask_assets =
-            cw_dex_router.query_supported_ask_assets(&querier, &offer_asset)?;
+            query_supported_ask_assets(&app, &cw_dex_router.addr().to_string(), &offer_asset)?;
 
         println!("expected_offer_assets: {:?}", expected_offer_assets);
         println!("supported_offer_assets: {:?}", supported_offer_assets);

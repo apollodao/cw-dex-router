@@ -67,5 +67,5 @@ apollo-utils = "0.1.0"
 
 [dev-dependencies]
 test-case = "3.0.0"
-cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "1a3eea575ef82e71460db7296a9e0b5ffa98dcff" }
-osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust", rev = "430236bd63f26d618e11e59709a56c808c4d427c" }
+cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "aa3414cc7af993d26493e05868ae805a45d12cf4" }
+osmosis-test-tube = { git = "https://github.com/apollodao/test-tube.git", rev = "d2245dfed56329d8c2e84d109a5a01f29d0db0e8" }
