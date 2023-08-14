@@ -377,12 +377,11 @@ pub fn simulate_swap_operations(
     for operation in operations.into_iter() {
         let offer_asset = Asset::new(operation.offer_asset_info, offer_amount);
 
-        offer_amount = operation.pool.as_trait().simulate_swap(
-            deps,
-            offer_asset,
-            operation.ask_asset_info,
-            sender.clone(),
-        )?;
+        offer_amount =
+            operation
+                .pool
+                .as_trait()
+                .simulate_swap(deps, offer_asset, operation.ask_asset_info)?;
     }
 
     Ok(offer_amount)

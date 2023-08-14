@@ -74,12 +74,9 @@ impl SwapOperation {
         if recipient != env.contract.address {
             // Simulate swap to know how much will be returned, then add message
             // to send tokens to recipient
-            let receive_amount = self.pool.simulate_swap(
-                deps,
-                offer_asset,
-                self.ask_asset_info.clone(),
-                Some(env.contract.address.to_string()),
-            )?;
+            let receive_amount =
+                self.pool
+                    .simulate_swap(deps, offer_asset, self.ask_asset_info.clone())?;
             let receive_asset = Asset::new(self.ask_asset_info.clone(), receive_amount);
             response = response.add_message(receive_asset.transfer_msg(recipient)?);
         }
