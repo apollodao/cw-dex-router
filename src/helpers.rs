@@ -166,14 +166,12 @@ impl CwDexRouter {
         querier: &QuerierWrapper,
         offer_amount: Uint128,
         operations: &SwapOperationsList,
-        sender: Option<String>,
     ) -> StdResult<Uint128> {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
             msg: to_binary(&QueryMsg::SimulateSwapOperations {
                 offer_amount,
                 operations: operations.into(),
-                sender,
             })?,
         }))
     }
@@ -183,14 +181,12 @@ impl CwDexRouter {
         querier: &QuerierWrapper,
         offer_assets: AssetList,
         receive_asset: &AssetInfo,
-        sender: Option<String>,
     ) -> StdResult<Uint128> {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
             msg: to_binary(&QueryMsg::SimulateBasketLiquidate {
                 offer_assets: offer_assets.into(),
                 receive_asset: receive_asset.to_owned().into(),
-                sender,
             })?,
         }))
     }

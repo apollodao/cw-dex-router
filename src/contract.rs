@@ -332,22 +332,14 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::SimulateSwapOperations {
             offer_amount,
             operations,
-            sender,
-        } => to_binary(&simulate_swap_operations(
-            deps,
-            offer_amount,
-            operations,
-            sender,
-        )?),
+        } => to_binary(&simulate_swap_operations(deps, offer_amount, operations)?),
         QueryMsg::SimulateBasketLiquidate {
             offer_assets,
             receive_asset,
-            sender,
         } => to_binary(&simulate_basket_liquidate(
             deps,
             offer_assets,
             receive_asset,
-            sender,
         )?),
         QueryMsg::PathForPair {
             offer_asset,
@@ -370,7 +362,6 @@ pub fn simulate_swap_operations(
     deps: Deps,
     mut offer_amount: Uint128,
     operations: SwapOperationsListUnchecked,
-    sender: Option<String>,
 ) -> Result<Uint128, ContractError> {
     let operations = operations.check(deps)?;
 
@@ -391,7 +382,6 @@ pub fn simulate_basket_liquidate(
     deps: Deps,
     offer_assets: AssetListUnchecked,
     receive_asset: AssetInfoUnchecked,
-    sender: Option<String>,
 ) -> Result<Uint128, ContractError> {
     let offer_assets = offer_assets.check(deps.api)?;
     let receive_asset = receive_asset.check(deps.api)?;
@@ -411,8 +401,7 @@ pub fn simulate_basket_liquidate(
 
     // Loop over paths and simulate swap operations
     for (asset, path) in paths {
-        receive_amount +=
-            simulate_swap_operations(deps, asset.amount, path.into(), sender.clone())?;
+        receive_amount += simulate_swap_operations(deps, asset.amount, path.into())?;
     }
 
     Ok(receive_amount)
