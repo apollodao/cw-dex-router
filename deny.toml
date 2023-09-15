@@ -16,6 +16,9 @@ ignore = [
     # other crates. See
     # https://github.com/chronotope/chrono/issues/602#issuecomment-1075915577
     "RUSTSEC-2020-0071", # Alias: RUSTSEC-2020-26235
+    # Only in dev deps
+    "RUSTSEC-2022-0093",
+    "RUSTSEC-2023-0052"
 ]
 
 [bans]

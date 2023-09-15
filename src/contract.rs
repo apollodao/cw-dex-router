@@ -162,7 +162,7 @@ pub fn execute_swap_operations(
     let target_asset_info = operations.to();
     let offer_asset_info = operations.from();
 
-    //1. Validate sent asset. We only do this if the passed in optional
+    // 1. Validate sent asset. We only do this if the passed in optional
     // `offer_amount` and in this case we do transfer from on it, given that
     // the offer asset is a CW20. Otherwise we assume the caller already sent
     // funds and in the first call of execute_swap_operation, we just use the
@@ -176,10 +176,10 @@ pub fn execute_swap_operations(
         )?);
     };
 
-    //2. Loop and execute swap operations
+    // 2. Loop and execute swap operations
     let mut msgs: Vec<CosmosMsg> = operations.into_execute_msgs(&env, recipient.clone())?;
 
-    //3. Assert min receive
+    // 3. Assert min receive
     if let Some(minimum_receive) = minimum_receive {
         let recipient_balance =
             target_asset_info.query_balance(&deps.querier, recipient.clone())?;
@@ -304,7 +304,7 @@ pub fn basket_liquidate(
             Ok::<Vec<_>, ContractError>(msgs)
         })?;
 
-    //3. Assert min receive
+    // 3. Assert min receive
     if let Some(minimum_receive) = minimum_receive {
         let recipient_balance = receive_asset.query_balance(&deps.querier, recipient.clone())?;
         msgs.push(

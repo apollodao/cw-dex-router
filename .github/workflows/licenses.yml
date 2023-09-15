@@ -22,13 +22,11 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
+      - name: Install cargo make
+        uses: davidB/rust-cargo-make@v1
+
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: 1.59.0
-          target: wasm32-unknown-unknown
-          override: true
+        run: cargo make install-stable
 
       - name: run cargo deny
         uses: EmbarkStudios/cargo-deny-action@v1

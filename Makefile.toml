@@ -1,45 +1,83 @@
+extend = [{ path = "coverage_grcov.Makefile.toml" }]
+
+[config]
+default_to_workspace = false
+skip_core_tasks = true
+
 [env]
-CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+# If you bump this version, verify RUST_VERSION correctness
+RUST_OPTIMIZER_VERSION = "0.13.0"
+# Use rust version from rust-optimizer Dockerfile (see https://github.com/CosmWasm/rust-optimizer/blob/main/Dockerfile#L1)
+# to be sure that we compile / test against the same version
+RUST_VERSION = "1.69.0"
+NIGHTLY_VERSION = "nightly-2023-08-29"
+
+[tasks.install-stable]
+script = '''
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain ${RUST_VERSION}
+rustup target add wasm32-unknown-unknown --toolchain ${RUST_VERSION}
+rustup component add rustfmt --toolchain ${RUST_VERSION}
+rustup component add clippy --toolchain ${RUST_VERSION}
+rustup component add llvm-tools-preview --toolchain ${RUST_VERSION}
+'''
+
+[tasks.install-nightly]
+script = '''
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain ${NIGHTLY_VERSION}
+rustup target add wasm32-unknown-unknown --toolchain ${NIGHTLY_VERSION}
+rustup component add rustfmt --toolchain ${NIGHTLY_VERSION}
+rustup component add clippy --toolchain ${NIGHTLY_VERSION}
+'''
+
+[tasks.rust-optimizer]
+cwd = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}"
+script = """
+if [[ $(arch) == "arm64" ]]; then
+  image="cosmwasm/rust-optimizer-arm64:${RUST_OPTIMIZER_VERSION}"
+else
+  image="cosmwasm/rust-optimizer:${RUST_OPTIMIZER_VERSION}"
+fi
+docker run --rm -v "$(pwd)":/code \
+  --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
+  --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
+  ${image}
+"""
 
 [tasks.format]
-toolchain = "nightly"
+toolchain = "${NIGHTLY_VERSION}"
 install_crate = { crate_name = "rustfmt-nightly", rustup_component_name = "rustfmt-preview", binary = "rustfmt", test_arg = "--help" }
 command = "cargo"
 args = ["fmt", "--all", "--", "--emit=files","--verbose"]
 [tasks.format-check]
-toolchain = "nightly"
+toolchain = "${NIGHTLY_VERSION}"
 install_crate = { crate_name = "rustfmt-nightly", rustup_component_name = "rustfmt-preview", binary = "rustfmt", test_arg = "--help" }
 command = "cargo"
 args = ["fmt", "--all", "--","--verbose", "--check"]
-
-# This task requires the `cargo-udeps` package: https://crates.io/crates/cargo-udeps
-[tasks.udeps]
-toolchain = "nightly"
-command = "cargo"
-args = ["udeps"]
 
 [tasks.deny]
 command = "cargo"
 args = ["deny", "check"]
 
 [tasks.check]
+toolchain = "${RUST_VERSION}"
 command = "cargo"
 args = ["check"]
 
 [tasks.clippy-check]
-toolchain = "nightly"
+toolchain = "${NIGHTLY_VERSION}"
 command = "cargo"
 args = ["clippy","--all-features","--","-D","warnings"]
 [tasks.clippy-fix]
-toolchain = "nightly"
+toolchain = "${NIGHTLY_VERSION}"
 command = "cargo"
-args = ["clippy","--fix","--allow-staged","--","-D","warnings"]
+args = ["clippy","--all-features", "--fix","--allow-staged", "--allow-dirty", "--","-D","warnings"]
 
 [tasks.todo-check]
 script = { file = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/scripts/todo-lint.sh", absolute_path = true }
 
 # This task requires the `cargo-tarpaulin` package: https://crates.io/crates/cargo-tarpaulin
 [tasks.cov]
+toolchain = "${RUST_VERSION}"
 command = "cargo"
 args = [
     "tarpaulin",
@@ -51,6 +89,7 @@ args = [
 ]
 
 [tasks.docs]
+toolchain = "${RUST_VERSION}"
 command = "cargo"
 args = [
     "doc",
@@ -69,34 +108,76 @@ args = [
 
 # This task requires the `cargo-machete` package: https://crates.io/crates/cargo-machete
 [tasks.machete-check]
+toolchain = "${NIGHTLY_VERSION}"
 command = "cargo"
 args = ["machete"]
 [tasks.machete-fix]
 command = "cargo"
 args = ["machete", "--fix"]
 
-# Run automatically on "cargo make". This is the default task. We keep all the
-# default tasks and add our own "custom" task.
-[tasks.dev-test-flow]
-run_task = "custom-default"
 
-# Custom tasks to run on "cargo make"
-[tasks.custom-default]
-dependencies = ["deny", "clippy-fix", "docs", "machete-fix"]
-
-# Wasm build of test contract
+# Unoptimized Wasm build of contract for testing
 [tasks.wasm]
+toolchain = "${RUST_VERSION}"
 command = "cargo"
 args = [
     "build",
+    "-p",
+    "cw-dex-router",
     "--target",
     "wasm32-unknown-unknown",
     "--lib",
     "--release",
-    "--package",
-    "osmosis-test-contract"
+    "--features",
+    "osmosis"
 ]
+
+# Run all tests
+[tasks.test]
+toolchain = "${RUST_VERSION}"
+command = "cargo"
+args = ["test", "--locked"]
+
+# Run unit tests
+[tasks.unit-test]
+toolchain = "${RUST_VERSION}"
+command = "cargo"
+args = [
+    "test",
+    "--lib"
+]
+
+# Run integration tests
+[tasks.integration-test]
+env = { TEST_RUNNER = "osmosis-test-app" }
+cwd = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}"
+dependencies = ["wasm"]
+toolchain = "${RUST_VERSION}"
+command = "cargo"
+args = [
+    "test",
+    "--features",
+    "osmosis",
+    "--test",
+    "*",
+]
+
+# Create HTML coverage report
+[tasks.coverage-html]
+alias = "coverage-grcov-html"
+
+# Create LCOV coverage report
+[tasks.coverage-lcov]
+alias = "coverage-grcov-lcov"
+
+# Run automatically on "cargo make". This is the default task.
+[tasks.default]
+alias = "custom-default"
+
+# Custom tasks to run on "cargo make"
+[tasks.custom-default]
+dependencies = ["format", "clippy-fix", "deny", "machete-fix", "unit-test", "integration-test"]
 
 # Docs and Test coverage are not run by default. Can run all with "cargo make all".
 [tasks.all]
-dependencies = ["dev-test-flow", "custom-default", "cov"]
+dependencies = ["custom-default", "coverage-html"]
