@@ -1,0 +1,14 @@
+comment:
+  behavior: default
+  require_changes: true    # [true :: only post the comment if coverage changes]
+  require_base: false      # [true :: must have a base report to post]
+  require_head: true       # [true :: must have a head report to post]
+
+coverage:
+  status:
+    project:
+      default:
+        threshold: 95% # TODO: Update this before first release
+    patch:
+      default:
+        threshold: 90%
