@@ -163,9 +163,9 @@ pub fn execute_swap_operations(
     let offer_asset_info = operations.from();
 
     //1. Validate sent asset. We only do this if the passed in optional
-    // `offer_amount`   and in this case we do transfer from on it, given that
-    // the offer asset is   a CW20. Otherwise we assume the caller already sent
-    // funds and in the first   call of execute_swap_operation, we just use the
+    // `offer_amount` and in this case we do transfer from on it, given that
+    // the offer asset is a CW20. Otherwise we assume the caller already sent
+    // funds and in the first call of execute_swap_operation, we just use the
     // whole contracts balance.
     let mut msgs: Vec<CosmosMsg> = vec![];
     if let Some(offer_amount) = offer_amount {
@@ -206,6 +206,10 @@ pub fn execute_swap_operation(
     let offer_amount = operation
         .offer_asset_info
         .query_balance(&deps.querier, env.contract.address.to_string())?;
+
+    if offer_amount.is_zero() {
+        return Ok(Response::default());
+    }
 
     let event = Event::new("apollo/cw-dex-router/callback_execute_swap_operation")
         .add_attribute("operation", format!("{:?}", operation))
