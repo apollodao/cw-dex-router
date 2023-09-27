@@ -6,7 +6,7 @@ skip_core_tasks = true
 
 [env]
 # If you bump this version, verify RUST_VERSION correctness
-RUST_OPTIMIZER_VERSION = "0.13.0"
+RUST_OPTIMIZER_VERSION = "0.15.0"
 # Use rust version from rust-optimizer Dockerfile (see https://github.com/CosmWasm/rust-optimizer/blob/main/Dockerfile#L1)
 # to be sure that we compile / test against the same version
 RUST_VERSION = "1.69.0"
@@ -33,9 +33,9 @@ rustup component add clippy --toolchain ${NIGHTLY_VERSION}
 cwd = "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}"
 script = """
 if [[ $(arch) == "arm64" ]]; then
-  image="cosmwasm/rust-optimizer-arm64:${RUST_OPTIMIZER_VERSION}"
+  image="abstractmoney/rust-optimizer-arm64:${RUST_OPTIMIZER_VERSION}"
 else
-  image="cosmwasm/rust-optimizer:${RUST_OPTIMIZER_VERSION}"
+  image="abstractmoney/rust-optimizer:${RUST_OPTIMIZER_VERSION}"
 fi
 docker run --rm -v "$(pwd)":/code \
   --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
