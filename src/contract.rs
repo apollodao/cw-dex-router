@@ -3,7 +3,7 @@ use apollo_cw_asset::{Asset, AssetInfo, AssetInfoUnchecked, AssetList, AssetList
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
     from_binary, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, Event, MessageInfo, Order,
-    Response, StdResult, Uint128,
+    Response, StdResult, Uint128, StdError,
 };
 use cw2::set_contract_version;
 use cw20::Cw20ReceiveMsg;
@@ -255,19 +255,30 @@ pub fn set_path(
         });
     }
 
+    // check if we have any exisiting items under the offer_asset, ask_asset pair
+    // we are looking for the highest ID so we can increment it, this should be under Order::Descending in the first item
+    let paths: Result<Vec<(u64, SwapOperationsList)>, StdError> = PATHS.prefix((offer_asset.into(), ask_asset.into())).range(deps.storage, None, None, Order::Descending).collect();
+    let last_id = paths?.first().map(|(val, _)| val).unwrap_or(&0);
+
+    let new_id = last_id + 1;
     PATHS.save(
         deps.storage,
-        ((&offer_asset).into(), (&ask_asset).into()),
+        ((&offer_asset).into(), (&ask_asset).into(), new_id),
         &path,
     )?;
     // reverse path and store if `bidirectional` is true
     if bidirectional {
+        let paths: Result<Vec<(u64, SwapOperationsList)>, StdError> = PATHS.prefix((ask_asset.into(), offer_asset.into())).range(deps.storage, None, None, Order::Descending).collect();
+        let last_id = paths?.first().map(|(val, _)| val).unwrap_or(&0);
+        
+        let new_id = last_id + 1;
         PATHS.save(
             deps.storage,
-            (ask_asset.into(), offer_asset.into()),
+            (ask_asset.into(), offer_asset.into(), new_id),
             &path.reverse(),
         )?;
     }
+    
     Ok(Response::default())
 }
 
