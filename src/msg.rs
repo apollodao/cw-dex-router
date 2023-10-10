@@ -19,12 +19,12 @@ pub enum ExecuteMsg {
         minimum_receive: Option<Uint128>,
         to: Option<String>,
     },
-    BasketLiquidate {
-        offer_assets: AssetListUnchecked,
-        receive_asset: AssetInfoUnchecked,
-        minimum_receive: Option<Uint128>,
-        to: Option<String>,
-    },
+    // BasketLiquidate {
+    //     offer_assets: AssetListUnchecked,
+    //     receive_asset: AssetInfoUnchecked,
+    //     minimum_receive: Option<Uint128>,
+    //     to: Option<String>,
+    // },
     SetPath {
         offer_asset: AssetInfoUnchecked,
         ask_asset: AssetInfoUnchecked,
@@ -77,17 +77,23 @@ pub enum QueryMsg {
         operations: SwapOperationsListUnchecked,
     },
 
-    #[returns(Uint128)]
-    SimulateBasketLiquidate {
-        offer_assets: AssetListUnchecked,
-        receive_asset: AssetInfoUnchecked,
-    },
-
+    // #[returns(Uint128)]
+    // SimulateBasketLiquidate {
+    //     offer_assets: AssetListUnchecked,
+    //     receive_asset: AssetInfoUnchecked,
+    // },
     /// Returns all the current path for a given (offer_asset, ask_asset) pair.
-    #[returns(crate::operations::SwapOperationsList)]
-    PathForPair {
+    #[returns(Vec<crate::operations::SwapOperationsList>)]
+    PathsForPair {
         offer_asset: AssetInfoUnchecked,
         ask_asset: AssetInfoUnchecked,
+    },
+
+    #[returns(crate::operations::SwapOperationsList)]
+    BestPathForPair {
+        offer_asset: AssetInfoUnchecked,
+        ask_asset: AssetInfoUnchecked,
+        exclude_paths: Option<Vec<u64>>,
     },
 
     /// Returns all the assets from which there are paths to a given ask asset.
