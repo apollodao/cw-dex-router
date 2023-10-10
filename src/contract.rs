@@ -472,17 +472,16 @@ pub fn query_best_path_for_pair(
         .into_iter()
         .filter(|(id, _)| excluded.contains(id))
         .collect();
-    let swap_paths: Result<Vec<(&SwapOperationsListBase<Addr>, Uint128)>, ContractError> = paths.iter().map(|(id, swaps)| {
+    let swap_paths: Result<Vec<(SwapOperationsListBase<Addr>, Uint128)>, ContractError> = paths.into_iter().map(|(id, swaps)| {
         Ok((
             swaps,
             simulate_swap_operations(deps, offer_amount, swaps.into())?,
         ))
     }).collect();
     Ok(
-        // TODO fetch the path with the highest result and return it
-        swap_paths?.iter().max_by(|(_, a), (_, b)| {
+        swap_paths?.into_iter().max_by(|(_, a), (_, b)| {
             a.cmp(b)
-        })
+        }).unwrap().0
     )
 }
 
