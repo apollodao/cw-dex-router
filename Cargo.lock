@@ -87,9 +87,9 @@ dependencies = [
 
 [[package]]
 name = "astroport"
-version = "2.8.0"
+version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfcea351626899d205aab091c891fc878fc9b3c930585fd3ef6222de028d8a7a"
+checksum = "78b863a982595743e181f89540d7aaeda35c60b6b5cac9c36c9be30cf11a5ece"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
@@ -715,22 +715,20 @@ dependencies = [
 
 [[package]]
 name = "cw-dex"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "485871c94ef1b9e6c24b2a10cd4b8a3e10c9fab73ffd20afc69506b333bc9744"
+checksum = "6b8d40af4c29539a1c01e71d7c20cc0d65500b49ab98655e5ee7b5e7972c8bb5"
 dependencies = [
  "apollo-cw-asset",
  "apollo-utils",
  "astroport",
  "cosmwasm-schema",
  "cosmwasm-std",
- "cw-storage-plus 1.1.0",
  "cw-utils 1.0.1",
  "cw2 1.1.0",
  "cw20 1.1.0",
  "osmosis-std 0.19.2",
  "thiserror",
- "uint",
 ]
 
 [[package]]
