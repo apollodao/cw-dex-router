@@ -11,7 +11,9 @@ use cw20::Cw20ReceiveMsg;
 use crate::error::ContractError;
 use crate::helpers::{receive_asset, receive_assets};
 use crate::msg::{CallbackMsg, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
-use crate::operations::{SwapOperation, SwapOperationsList, SwapOperationsListUnchecked, SwapOperationsListBase};
+use crate::operations::{
+    SwapOperation, SwapOperationsList, SwapOperationsListBase, SwapOperationsListUnchecked,
+};
 use crate::state::{ADMIN, PATHS};
 
 const CONTRACT_NAME: &str = "crates.io:cw-dex-router";
@@ -378,7 +380,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             offer_asset,
             ask_asset,
             exclude_paths,
-        } => {}
+        } => todo!(),
         QueryMsg::SupportedOfferAssets { ask_asset } => {
             to_binary(&query_supported_offer_assets(deps, ask_asset)?)
         }
@@ -459,31 +461,34 @@ pub fn query_paths_for_pair(
     }
 }
 
-pub fn query_best_path_for_pair(
-    deps: Deps,
-    offer_amount: Uint128,
-    offer_asset: AssetInfo,
-    ask_asset: AssetInfo,
-    exclude_paths: Option<Vec<u64>>,
-) -> Result<SwapOperationsList, ContractError> {
-    let paths = query_paths_for_pair(deps, offer_asset, ask_asset)?;
-    let excluded = exclude_paths.unwrap_or(vec![]);
-    let paths: Vec<(u64, SwapOperationsList)> = paths
-        .into_iter()
-        .filter(|(id, _)| excluded.contains(id))
-        .collect();
-    let swap_paths: Result<Vec<(SwapOperationsListBase<Addr>, Uint128)>, ContractError> = paths.into_iter().map(|(id, swaps)| {
-        Ok((
-            swaps,
-            simulate_swap_operations(deps, offer_amount, swaps.into())?,
-        ))
-    }).collect();
-    Ok(
-        swap_paths?.into_iter().max_by(|(_, a), (_, b)| {
-            a.cmp(b)
-        }).unwrap().0
-    )
-}
+// pub fn query_best_path_for_pair(
+//     deps: Deps,
+//     offer_amount: Uint128,
+//     offer_asset: AssetInfo,
+//     ask_asset: AssetInfo,
+//     exclude_paths: Option<Vec<u64>>,
+// ) -> Result<SwapOperationsList, ContractError> {
+//     let paths = query_paths_for_pair(deps, offer_asset, ask_asset)?;
+//     let excluded = exclude_paths.unwrap_or(vec![]);
+//     let paths: Vec<(u64, SwapOperationsList)> = paths
+//         .into_iter()
+//         .filter(|(id, _)| excluded.contains(id))
+//         .collect();
+//     let swap_paths: Result<Vec<(SwapOperationsListBase<Addr>, Uint128)>, ContractError> = paths
+//         .into_iter()
+//         .map(|(id, swaps)| {
+//             Ok((
+//                 swaps,
+//                 simulate_swap_operations(deps, offer_amount, swaps.into())?,
+//             ))
+//         })
+//         .collect();
+//     Ok(swap_paths?
+//         .into_iter()
+//         .max_by(|(_, a), (_, b)| a.cmp(b))
+//         .unwrap()
+//         .0)
+// }
 
 pub fn query_supported_offer_assets(
     deps: Deps,
