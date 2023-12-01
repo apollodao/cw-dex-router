@@ -69,6 +69,14 @@ pub enum Cw20HookMsg {
 }
 
 #[cw_serde]
+pub struct BestPathForPairResponse {
+    /// the operations that will be executed to perform the swap
+    pub operations: crate::operations::SwapOperationsList,
+    /// the amount of tokens that are expected to be received after the swap
+    pub return_amount: Uint128,
+}
+
+#[cw_serde]
 #[derive(QueryResponses)]
 pub enum QueryMsg {
     #[returns(Uint128)]
@@ -88,10 +96,12 @@ pub enum QueryMsg {
         offer_asset: AssetInfoUnchecked,
         ask_asset: AssetInfoUnchecked,
     },
-
-    #[returns(crate::operations::SwapOperationsList)]
+    /// finds the best path for a given (offer_asset, ask_asset) pair.
+    /// if no path is found, returns None.
+    #[returns(Option<BestPathForPairResponse>)]
     BestPathForPair {
         offer_asset: AssetInfoUnchecked,
+        offer_amount: Uint128,
         ask_asset: AssetInfoUnchecked,
         exclude_paths: Option<Vec<u64>>,
     },
