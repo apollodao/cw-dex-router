@@ -21,8 +21,8 @@ mod osmosis_tests {
 
     use cw_dex_router::helpers::{CwDexRouter, CwDexRouterUnchecked};
 
-    use cw_it::config::{Contract, TestConfig};
-    use cw_it::mock_api::OsmosisMockApi;
+    use cw_it_old::config::{Contract, TestConfig};
+    use cw_it_old::mock_api::OsmosisMockApi;
     use osmosis_testing::cosmrs::proto::cosmos::bank::v1beta1::QueryBalanceRequest;
 
     use osmosis_testing::cosmrs::Any;

@@ -59,6 +59,10 @@ thiserror = "1.0.38"
 apollo-utils = "0.1.0"
 
 [dev-dependencies]
+cw-it = { version = "0.2.3", features = ["osmosis-test-tube"] }
 test-case = "3.0.0"
-cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "1a3eea575ef82e71460db7296a9e0b5ffa98dcff" }
+serde_json = "1.0.107"
+
+# Used in osmosis tests, should migrate to new cw-it at some point
+cw-it-old = { package = "cw-it", git = "https://github.com/apollodao/cw-it.git", rev = "1a3eea575ef82e71460db7296a9e0b5ffa98dcff" }
 osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust", rev = "430236bd63f26d618e11e59709a56c808c4d427c" }

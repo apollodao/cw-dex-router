@@ -741,11 +741,13 @@ dependencies = [
  "cosmwasm-std",
  "cw-controllers",
  "cw-dex",
- "cw-it",
+ "cw-it 0.1.0",
+ "cw-it 0.2.3",
  "cw-storage-plus 1.1.0",
  "cw2 1.1.0",
  "cw20 1.1.0",
  "osmosis-testing 0.12.0",
+ "serde_json",
  "test-case",
  "thiserror",
 ]
@@ -771,6 +773,27 @@ dependencies = [
  "thiserror",
  "tokio",
  "tonic",
+]
+
+[[package]]
+name = "cw-it"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f452b759fc448ec05d20dc70f25dda8b83ba0a7c994049d27556fd1813a5ad0d"
+dependencies = [
+ "anyhow",
+ "config",
+ "cosmrs",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "osmosis-std 0.19.2",
+ "osmosis-test-tube",
+ "prost",
+ "serde",
+ "serde_json",
+ "strum",
+ "test-tube",
+ "thiserror",
 ]
 
 [[package]]
@@ -1473,6 +1496,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "heck"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
+
+[[package]]
 name = "hermit-abi"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2085,6 +2114,24 @@ dependencies = [
  "prost-types",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "osmosis-test-tube"
+version = "19.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0dde0a21f1323e7c78f46da4bd0b24149d26483785fb5b39f74016f3f524aad"
+dependencies = [
+ "base64 0.13.1",
+ "bindgen",
+ "cosmrs",
+ "cosmwasm-std",
+ "osmosis-std 0.19.2",
+ "prost",
+ "serde",
+ "serde_json",
+ "test-tube",
+ "thiserror",
 ]
 
 [[package]]
@@ -2967,6 +3014,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
+name = "strum"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "063e6045c0e62079840579a7e47a355ae92f60eb74daaf156fb1e84ba164e63f"
+dependencies = [
+ "strum_macros",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.24.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e385be0d24f186b4ce2f9982191e7101bb737312ad61c1f2f984f34bcf85d59"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "subtle"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3178,6 +3247,22 @@ dependencies = [
  "quote",
  "syn 2.0.37",
  "test-case-core",
+]
+
+[[package]]
+name = "test-tube"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04de0d85f2438f0b64a5c135a1524564f2b89263cfbce011542446b6681d006f"
+dependencies = [
+ "base64 0.13.1",
+ "cosmrs",
+ "cosmwasm-std",
+ "osmosis-std 0.19.2",
+ "prost",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]
