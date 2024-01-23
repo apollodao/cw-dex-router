@@ -1,15 +1,15 @@
 [package]
 authors = ["Apollo Devs <shared@apollo.farm>"]
+description = "A cosmwasm contract for routing swaps across multiple dexes."
+documentation = "https://docs.rs/cw-dex-router"
 edition = "2021"
+homepage = "https://apollo.farm"
+keywords = ["cosmwasm", "dex", "router", "osmosis", "astroport"]
+license = "MPL-2.0"
 name = "cw-dex-router"
-version = "0.2.1-rc.1"
 readme = "README.md"
 repository = "https://github.com/apollodao/cw-dex-router"
-homepage = "https://apollo.farm"
-documentation = "https://docs.rs/cw-dex-router"
-license = "MPL-2.0"
-description = "A cosmwasm contract for routing swaps across multiple dexes."
-keywords = ["cosmwasm", "dex", "router", "osmosis", "astroport"]
+version = "0.2.1-rc.1"
 
 exclude = [
   # Those files are rust-optimizer artifacts. You might want to commit them for convenience but they should not be part of the source code publication.
@@ -34,31 +34,32 @@ panic = 'abort'
 rpath = false
 
 [features]
-default = []
+default = ["cw-dex/osmosis"]
 # use library feature to disable all instantiate/execute/query exports
+astroport = ["cw-dex/astroport"]
 library = []
 osmosis = ["cw-dex/osmosis"]
-astroport = ["cw-dex/astroport"]
 
 [package.metadata.optimizer]
 builds = [
-  { name = "astroport", features = ["astroport"] },
-  { name = "osmosis", features = ["osmosis"] },
+  {name = "astroport", features = ["astroport"]},
+  {name = "osmosis", features = ["osmosis"]},
 ]
 
 [dependencies]
-cosmwasm-std = "1.2.1"
-cosmwasm-schema = "1.2.1"
 apollo-cw-asset = "0.1.0"
+apollo-utils = "0.1.0"
+cosmwasm-schema = "1.2.1"
+cosmwasm-std = "1.2.1"
 cw-controllers = "1.0.1"
-cw-dex = "0.4.1-rc.1"
+cw-dex = {path = "../cw-dex/cw-dex"}
 cw-storage-plus = "1.0.1"
 cw2 = "1.0.1"
 cw20 = "1.0.1"
 thiserror = "1.0.38"
-apollo-utils = "0.1.0"
 
 [dev-dependencies]
+cw-it = {git = "https://github.com/apollodao/cw-it.git", rev = "1a3eea575ef82e71460db7296a9e0b5ffa98dcff"}
+osmosis-std = "0.22.0"
+osmosis-test-tube = {git = "https://github.com/magiodev/test-tube/", branch = "fix/v22_go_mod_tidy"}
 test-case = "3.0.0"
-cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "1a3eea575ef82e71460db7296a9e0b5ffa98dcff" }
-osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust", rev = "430236bd63f26d618e11e59709a56c808c4d427c" }

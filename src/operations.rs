@@ -33,13 +33,20 @@ pub type SwapOperation = SwapOperationBase<Addr>;
 
 impl SwapOperationUnchecked {
     pub fn check(&self, deps: Deps) -> Result<SwapOperation, ContractError> {
+        deps.api.debug("precheck swap");
+
         let op = SwapOperation {
             ask_asset_info: self.ask_asset_info.check(deps.api)?,
             offer_asset_info: self.offer_asset_info.check(deps.api)?,
             pool: self.pool.clone(),
         };
+        deps.api.debug("postcheck swap");
+
         // validate pool assets
         let pool_assets = op.pool.pool_assets(deps)?;
+        deps.api
+            .debug(&format!("postcheck pool assets: {:?}", pool_assets));
+
         if !pool_assets.contains(&op.offer_asset_info) || !pool_assets.contains(&op.ask_asset_info)
         {
             Err(ContractError::InvalidSwapOperations {
@@ -123,6 +130,8 @@ impl SwapOperationsListUnchecked {
             .map(|x| x.check(deps))
             .collect::<Result<Vec<_>, ContractError>>()?;
 
+        deps.api.debug("Post operations");
+
         if operations.is_empty() {
             return Err(ContractError::MustProvideOperations);
         }
@@ -135,6 +144,8 @@ impl SwapOperationsListUnchecked {
             prev_ask_asset = operation.ask_asset_info.clone();
         }
 
+        deps.api.debug("Post prevaskasset");
+
         // Check that the path never swaps through the same pool twice
         let mut unique_pools = vec![];
         for operation in operations.iter() {
@@ -144,6 +155,8 @@ impl SwapOperationsListUnchecked {
                 return Err(ContractError::InvalidSwapOperations { operations });
             }
         }
+
+        deps.api.debug("Post uniquepools");
 
         Ok(SwapOperationsListBase(operations))
     }

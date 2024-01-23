@@ -85,7 +85,9 @@ pub fn execute(
             path,
             bidirectional,
         } => {
+            deps.api.debug("precheck");
             let path = path.check(deps.as_ref())?;
+            deps.api.debug("postcheck");
             let api = deps.api;
             set_path(
                 deps,
