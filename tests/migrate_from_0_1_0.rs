@@ -9,12 +9,10 @@ mod tests {
     use cw_it::osmosis_std::types::cosmwasm::wasm::v1::{
         MsgMigrateContract, MsgMigrateContractResponse,
     };
-    use cw_it::osmosis_test_tube::Gamm;
+    use cw_it::osmosis_test_tube::{Gamm, OsmosisTestApp};
     use cw_it::test_tube::{Account, Module, Runner, SigningAccount, Wasm};
-    use cw_it::{
-        osmosis_test_tube::OsmosisTestApp, traits::CwItRunner, Artifact, ContractType,
-        OwnedTestRunner,
-    };
+    use cw_it::traits::CwItRunner;
+    use cw_it::{Artifact, ContractType, OwnedTestRunner};
 
     const TEST_ARTIFACTS_DIR: &str = "tests/test_artifacts";
 
@@ -119,7 +117,8 @@ mod tests {
         wasm.execute(&contract_addr, &execute_msg, &[], &admin)
             .unwrap();
 
-        // Try basket liquidate swapping ION and OSMO to ATOM, should fail due to overlapping paths bug
+        // Try basket liquidate swapping ION and OSMO to ATOM, should fail due to
+        // overlapping paths bug
         let basket_liq_msg = ExecuteMsg::BasketLiquidate {
             offer_assets: vec![
                 AssetUnchecked::new(
