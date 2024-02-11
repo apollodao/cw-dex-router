@@ -2,7 +2,7 @@
 authors = ["Apollo Devs <shared@apollo.farm>"]
 edition = "2021"
 name = "cw-dex-router"
-version = "0.3.1"
+version = "0.4.0-rc.1"
 readme = "README.md"
 repository = "https://github.com/apollodao/cw-dex-router"
 homepage = "https://apollo.farm"
@@ -51,7 +51,7 @@ cosmwasm-std = "1.2.1"
 cosmwasm-schema = "1.2.1"
 apollo-cw-asset = "0.1.0"
 cw-controllers = "1.0.1"
-cw-dex = "0.5.1"
+cw-dex = "0.6.0-rc.3"
 cw-storage-plus = "1.0.1"
 cw2 = "1.0.1"
 cw20 = "1.0.1"
@@ -59,7 +59,7 @@ thiserror = "1.0.38"
 apollo-utils = "0.1.0"
 
 [dev-dependencies]
-cw-it = { version = "0.2.3", features = ["osmosis-test-tube"] }
+cw-it = { version = "0.3.0-rc.4", features = ["osmosis-test-tube"] }
 test-case = "3.0.0"
 serde_json = "1.0.107"
 
