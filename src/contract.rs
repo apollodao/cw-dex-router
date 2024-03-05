@@ -2,8 +2,8 @@ use apollo_cw_asset::{Asset, AssetInfo, AssetInfoUnchecked, AssetList, AssetList
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    from_binary, to_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, Event, MessageInfo, Order,
-    Response, StdResult, Uint128,
+    from_json, to_json_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Env, Event, MessageInfo,
+    Order, Response, StdResult, Uint128,
 };
 use cw2::set_contract_version;
 use cw20::Cw20ReceiveMsg;
@@ -124,7 +124,7 @@ pub fn receive_cw20(
 ) -> Result<Response, ContractError> {
     let sender = deps.api.addr_validate(&cw20_msg.sender)?;
 
-    match from_binary(&cw20_msg.msg)? {
+    match from_json(&cw20_msg.msg)? {
         Cw20HookMsg::ExecuteSwapOperations {
             operations,
             minimum_receive,
@@ -336,11 +336,11 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::SimulateSwapOperations {
             offer_amount,
             operations,
-        } => to_binary(&simulate_swap_operations(deps, offer_amount, operations)?),
+        } => to_json_binary(&simulate_swap_operations(deps, offer_amount, operations)?),
         QueryMsg::SimulateBasketLiquidate {
             offer_assets,
             receive_asset,
-        } => to_binary(&simulate_basket_liquidate(
+        } => to_json_binary(&simulate_basket_liquidate(
             deps,
             offer_assets,
             receive_asset,
@@ -348,16 +348,16 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::PathForPair {
             offer_asset,
             ask_asset,
-        } => to_binary(&query_path_for_pair(
+        } => to_json_binary(&query_path_for_pair(
             deps,
             offer_asset.check(deps.api)?,
             ask_asset.check(deps.api)?,
         )?),
         QueryMsg::SupportedOfferAssets { ask_asset } => {
-            to_binary(&query_supported_offer_assets(deps, ask_asset)?)
+            to_json_binary(&query_supported_offer_assets(deps, ask_asset)?)
         }
         QueryMsg::SupportedAskAssets { offer_asset } => {
-            to_binary(&query_supported_ask_assets(deps, offer_asset)?)
+            to_json_binary(&query_supported_ask_assets(deps, offer_asset)?)
         }
     }
 }

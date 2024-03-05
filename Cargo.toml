@@ -51,12 +51,13 @@ cosmwasm-std = "1.2.1"
 cosmwasm-schema = "1.2.1"
 apollo-cw-asset = "0.1.0"
 cw-controllers = "1.0.1"
-cw-dex = "0.6.0-rc.3"
+cw-dex = "0.5.3"
 cw-storage-plus = "1.0.1"
 cw2 = "1.0.1"
 cw20 = "1.0.1"
 thiserror = "1.0.38"
 apollo-utils = "0.1.0"
+cw-dex-osmosis = "0.1.0-rc.1"
 
 [dev-dependencies]
 cw-it = { version = "0.3.0-rc.4", features = ["osmosis-test-tube"] }
