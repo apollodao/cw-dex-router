@@ -1,10 +1,32 @@
+use std::ops::Deref;
+
 use crate::msg::CallbackMsg;
 use crate::ContractError;
 use apollo_cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, CosmosMsg, Deps, Env, Response, Uint128};
 use cw_dex::traits::Pool as PoolTrait;
-use cw_dex::Pool;
+
+#[cw_serde]
+pub enum Pool {
+    #[cfg(feature = "osmosis")]
+    Osmosis(cw_dex_osmosis::OsmosisPool),
+    #[cfg(feature = "astroport")]
+    Astroport(cw_dex_astroport::AstroportPool),
+}
+
+impl Deref for Pool {
+    type Target = dyn PoolTrait;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            #[cfg(feature = "osmosis")]
+            Pool::Osmosis(pool) => pool as &dyn PoolTrait,
+            #[cfg(feature = "astroport")]
+            Pool::Astroport(pool) => pool as &dyn PoolTrait,
+        }
+    }
+}
 
 #[cw_serde]
 pub struct SwapOperationBase<T> {
@@ -225,10 +247,10 @@ impl From<SwapOperationsList> for SwapOperationsListUnchecked {
 #[cfg(feature = "osmosis")]
 #[cfg(test)]
 mod unit_tests {
+    use super::Pool;
     use crate::operations::{SwapOperation, SwapOperationsList};
     use apollo_cw_asset::AssetInfo;
-    use cw_dex::osmosis::OsmosisPool;
-    use cw_dex::Pool;
+    use cw_dex_osmosis::OsmosisPool;
 
     #[test]
     fn test_reverse() {
@@ -272,5 +294,49 @@ mod unit_tests {
                 )
             ])
         )
+    }
+
+    #[test]
+    #[cfg(feature = "osmosis")]
+    #[allow(deprecated)]
+    fn test_deserialize_pool_from_cw_dex_pool_osmosis() {
+        use cosmwasm_std::to_json_vec;
+
+        let cw_dex_pool =
+            cw_dex::Pool::Osmosis(cw_dex::implementations::osmosis::OsmosisPool::unchecked(1));
+        let cw_dex_pool_binary = to_json_vec(&cw_dex_pool).unwrap();
+
+        let pool = Pool::Osmosis(OsmosisPool::unchecked(1));
+        let pool_binary = to_json_vec(&pool).unwrap();
+
+        assert_eq!(cw_dex_pool_binary, pool_binary);
+    }
+
+    #[test]
+    #[cfg(feature = "astroport")]
+    #[allow(deprecated)]
+    fn test_deserialize_pool_from_cw_dex_pool_astroport() {
+        use cosmwasm_std::{to_json_vec, Addr};
+
+        let cw_dex_pool =
+            cw_dex::Pool::Astroport(cw_dex::implementations::astroport::AstroportPool {
+                pair_addr: Addr::unchecked("pair_addr"),
+                lp_token_addr: Addr::unchecked("lp_token_addr"),
+                pool_assets: vec![],
+                pair_type: cw_dex::implementations::astroport::astroport::factory::PairType::Xyk {},
+                liquidity_manager: Addr::unchecked("liquidity_manager"),
+            });
+        let cw_dex_pool_binary = to_json_vec(&cw_dex_pool).unwrap();
+
+        let pool = Pool::Astroport(cw_dex_astroport::AstroportPool {
+            pair_addr: Addr::unchecked("pair_addr"),
+            lp_token_addr: Addr::unchecked("lp_token_addr"),
+            pool_assets: vec![],
+            pair_type: cw_dex_astroport::astroport::factory::PairType::Xyk {},
+            liquidity_manager: Addr::unchecked("liquidity_manager"),
+        });
+        let pool_binary = to_json_vec(&pool).unwrap();
+
+        assert_eq!(cw_dex_pool_binary, pool_binary);
     }
 }

@@ -34,11 +34,11 @@ panic = 'abort'
 rpath = false
 
 [features]
-default = []
+default = ["astroport", "osmosis"]
 # use library feature to disable all instantiate/execute/query exports
 library = []
-osmosis = ["cw-dex/osmosis"]
-astroport = ["cw-dex/astroport"]
+osmosis = ["cw-dex-osmosis", "cw-dex/osmosis"]
+astroport = ["cw-dex-astroport", "cw-dex/astroport"]
 
 [package.metadata.optimizer]
 builds = [
@@ -47,7 +47,7 @@ builds = [
 ]
 
 [dependencies]
-cosmwasm-std = "1.2.1"
+cosmwasm-std = "1.5"
 cosmwasm-schema = "1.2.1"
 apollo-cw-asset = "0.1.0"
 cw-controllers = "1.0.1"
@@ -57,13 +57,14 @@ cw2 = "1.0.1"
 cw20 = "1.0.1"
 thiserror = "1.0.38"
 apollo-utils = "0.1.0"
-cw-dex-osmosis = "0.1.0-rc.1"
+cw-dex-osmosis = { version = "0.1.0", optional = true }
+cw-dex-astroport = { version = "0.1.1", optional = true }
+cw-dex-router-0_3 = { package = "cw-dex-router", version = "0.3" }
 
 [dev-dependencies]
-cw-it = { version = "0.3.0-rc.4", features = ["osmosis-test-tube"] }
+cw-it = { version = "0.3.0", features = ["osmosis-test-tube"] }
 test-case = "3.0.0"
 serde_json = "1.0.107"
 
 # Used in osmosis tests, should migrate to new cw-it at some point
-cw-it-old = { package = "cw-it", git = "https://github.com/apollodao/cw-it.git", rev = "1a3eea575ef82e71460db7296a9e0b5ffa98dcff" }
 osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust", rev = "430236bd63f26d618e11e59709a56c808c4d427c" }

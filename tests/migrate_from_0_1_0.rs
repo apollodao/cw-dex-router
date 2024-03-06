@@ -2,10 +2,7 @@
 mod tests {
     use apollo_cw_asset::{AssetInfo, AssetInfoUnchecked, AssetUnchecked};
     use cosmwasm_std::{coin, Coin, Empty, Uint128};
-    use cw_dex::osmosis::OsmosisPool;
-    use cw_dex::Pool;
     use cw_dex_router::msg::{ExecuteMsg, MigrateMsg};
-    use cw_dex_router::operations::{SwapOperation, SwapOperationsList};
     use cw_it::osmosis_std::types::cosmwasm::wasm::v1::{
         MsgMigrateContract, MsgMigrateContractResponse,
     };
@@ -23,23 +20,33 @@ mod tests {
     const UOSMO_UATOM_PATH: &[(u64, &str, &str); 1] = &[(1, UOSMO, UATOM)];
     const UION_UATOM_PATH: &[(u64, &str, &str); 2] = &[(2, UION, UOSMO), (1, UOSMO, UATOM)];
 
-    fn osmosis_swap_operations_list_from_vec(vec: &[(u64, &str, &str)]) -> SwapOperationsList {
-        SwapOperationsList::new(
+    #[allow(deprecated)]
+    fn osmosis_swap_operations_list_from_vec(
+        vec: &[(u64, &str, &str)],
+    ) -> cw_dex_router_0_3::operations::SwapOperationsList {
+        cw_dex_router_0_3::operations::SwapOperationsList::new(
             vec.iter()
-                .map(|(pool_id, from, to)| SwapOperation {
-                    pool: Pool::Osmosis(OsmosisPool::unchecked(pool_id.to_owned())),
-                    offer_asset_info: AssetInfo::Native(from.to_string()),
-                    ask_asset_info: AssetInfo::Native(to.to_string()),
-                })
+                .map(
+                    |(pool_id, from, to)| cw_dex_router_0_3::operations::SwapOperation {
+                        pool: cw_dex::Pool::Osmosis(
+                            cw_dex::implementations::osmosis::OsmosisPool::unchecked(
+                                pool_id.to_owned(),
+                            ),
+                        ),
+                        offer_asset_info: AssetInfo::Native(from.to_string()),
+                        ask_asset_info: AssetInfo::Native(to.to_string()),
+                    },
+                )
                 .collect(),
         )
     }
 
+    #[allow(deprecated)]
     fn create_basic_pool<'a>(
         runner: &'a impl Runner<'a>,
         pool_liquidity: Vec<Coin>,
         signer: &SigningAccount,
-    ) -> OsmosisPool {
+    ) -> cw_dex::implementations::osmosis::OsmosisPool {
         let gamm = Gamm::new(runner);
 
         // Create 1:1 pool
@@ -49,7 +56,7 @@ mod tests {
             .data
             .pool_id;
 
-        OsmosisPool::unchecked(pool_id)
+        cw_dex::implementations::osmosis::OsmosisPool::unchecked(pool_id)
     }
 
     #[test]
@@ -99,7 +106,7 @@ mod tests {
 
         // Store two routes
         // OSMO -> ATOM
-        let execute_msg = ExecuteMsg::SetPath {
+        let execute_msg = cw_dex_router_0_3::msg::ExecuteMsg::SetPath {
             offer_asset: AssetInfoUnchecked::Native(UOSMO.to_string()),
             ask_asset: AssetInfoUnchecked::Native(UATOM.to_string()),
             path: osmosis_swap_operations_list_from_vec(UOSMO_UATOM_PATH).into(),
@@ -108,7 +115,7 @@ mod tests {
         wasm.execute(&contract_addr, &execute_msg, &[], &admin)
             .unwrap();
         // ION -> OSMO -> ATOM
-        let execute_msg = ExecuteMsg::SetPath {
+        let execute_msg = cw_dex_router_0_3::msg::ExecuteMsg::SetPath {
             offer_asset: AssetInfoUnchecked::Native(UION.to_string()),
             ask_asset: AssetInfoUnchecked::Native(UATOM.to_string()),
             path: osmosis_swap_operations_list_from_vec(UION_UATOM_PATH).into(),
