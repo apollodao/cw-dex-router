@@ -64,11 +64,11 @@ command = "cargo"
 args = ["check"]
 
 [tasks.clippy-check]
-toolchain = "${NIGHTLY_VERSION}"
+toolchain = "${RUST_VERSION}"
 command = "cargo"
-args = ["clippy","--all-features","--","-D","warnings"]
+args = ["clippy","--features", "osmosis", "--features", "astroport", "--", "-D", "warnings"]
 [tasks.clippy-fix]
-toolchain = "${NIGHTLY_VERSION}"
+toolchain = "${RUST_VERSION}"
 command = "cargo"
 args = ["clippy","--all-features", "--fix","--allow-staged", "--allow-dirty", "--","-D","warnings"]
 
