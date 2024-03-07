@@ -20,18 +20,16 @@ mod tests {
     const UOSMO_UATOM_PATH: &[(u64, &str, &str); 1] = &[(1, UOSMO, UATOM)];
     const UION_UATOM_PATH: &[(u64, &str, &str); 2] = &[(2, UION, UOSMO), (1, UOSMO, UATOM)];
 
-    #[allow(deprecated)]
+    #[cfg(feature = "osmosis")]
     fn osmosis_swap_operations_list_from_vec(
         vec: &[(u64, &str, &str)],
-    ) -> cw_dex_router_0_3::operations::SwapOperationsList {
-        cw_dex_router_0_3::operations::SwapOperationsList::new(
+    ) -> cw_dex_router::operations::SwapOperationsList {
+        cw_dex_router::operations::SwapOperationsList::new(
             vec.iter()
                 .map(
-                    |(pool_id, from, to)| cw_dex_router_0_3::operations::SwapOperation {
-                        pool: cw_dex::Pool::Osmosis(
-                            cw_dex::implementations::osmosis::OsmosisPool::unchecked(
-                                pool_id.to_owned(),
-                            ),
+                    |(pool_id, from, to)| cw_dex_router::operations::SwapOperation {
+                        pool: cw_dex_router::operations::Pool::Osmosis(
+                            cw_dex_osmosis::OsmosisPool::unchecked(pool_id.to_owned()),
                         ),
                         offer_asset_info: AssetInfo::Native(from.to_string()),
                         ask_asset_info: AssetInfo::Native(to.to_string()),
@@ -106,7 +104,7 @@ mod tests {
 
         // Store two routes
         // OSMO -> ATOM
-        let execute_msg = cw_dex_router_0_3::msg::ExecuteMsg::SetPath {
+        let execute_msg = cw_dex_router::msg::ExecuteMsg::SetPath {
             offer_asset: AssetInfoUnchecked::Native(UOSMO.to_string()),
             ask_asset: AssetInfoUnchecked::Native(UATOM.to_string()),
             path: osmosis_swap_operations_list_from_vec(UOSMO_UATOM_PATH).into(),
@@ -115,7 +113,7 @@ mod tests {
         wasm.execute(&contract_addr, &execute_msg, &[], &admin)
             .unwrap();
         // ION -> OSMO -> ATOM
-        let execute_msg = cw_dex_router_0_3::msg::ExecuteMsg::SetPath {
+        let execute_msg = cw_dex_router::msg::ExecuteMsg::SetPath {
             offer_asset: AssetInfoUnchecked::Native(UION.to_string()),
             ask_asset: AssetInfoUnchecked::Native(UATOM.to_string()),
             path: osmosis_swap_operations_list_from_vec(UION_UATOM_PATH).into(),
