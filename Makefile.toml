@@ -122,8 +122,6 @@ toolchain = "${RUST_VERSION}"
 command = "cargo"
 args = [
     "build",
-    "-p",
-    "cw-dex-router",
     "--target",
     "wasm32-unknown-unknown",
     "--lib",
