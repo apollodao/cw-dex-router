@@ -855,9 +855,9 @@ dependencies = [
 
 [[package]]
 name = "cw-it"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1bd88c423ae22eefe99b1b008c8b2d7936def56cfb0c65f6ccf634a0988d7b0"
+checksum = "3d9bf95d529e18676d6915a26c6d0ff254baf71d6a46ddae5c2014c276dae546"
 dependencies = [
  "anyhow",
  "config",
