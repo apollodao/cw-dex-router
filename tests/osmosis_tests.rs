@@ -6,66 +6,56 @@ mod osmosis_tests {
 
     use std::str::FromStr;
 
-    use cosmwasm_std::Api;
+    use cosmwasm_std::{Addr, Api};
 
     use cosmwasm_std::{Coin, CosmosMsg};
 
     use cosmwasm_std::{QuerierWrapper, StdError, StdResult, Uint128};
 
     use apollo_cw_asset::{AssetInfo, AssetInfoUnchecked};
-    use cw_dex::osmosis::OsmosisPool;
-    use cw_dex::Pool;
-    use cw_dex_router::msg::InstantiateMsg;
+    use cw_dex_osmosis::OsmosisPool;
+    use cw_dex_router::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
-    use cw_dex_router::operations::{SwapOperation, SwapOperationsList};
+    use cw_dex_router::operations::{Pool, SwapOperation, SwapOperationsList};
 
     use cw_dex_router::helpers::{CwDexRouter, CwDexRouterUnchecked};
 
-    use cw_it_old::config::{Contract, TestConfig};
-    use cw_it_old::mock_api::OsmosisMockApi;
-    use osmosis_testing::cosmrs::proto::cosmos::bank::v1beta1::QueryBalanceRequest;
+    use cw_it::cosmrs::Any;
+    use cw_it::osmosis_std::types::cosmos::bank::v1beta1::QueryBalanceRequest;
+    use cw_it::osmosis_test_tube::{Gamm, OsmosisTestApp};
+    use cw_it::test_tube::{Bank, Module, RunnerResult, SigningAccount, Wasm};
+    use cw_it::traits::CwItRunner;
 
-    use osmosis_testing::cosmrs::Any;
-    use osmosis_testing::{
-        Account, Bank, Gamm, Module, OsmosisTestApp, Runner, RunnerResult, SigningAccount, Wasm,
-    };
+    use cw_it::{self, Artifact, ContractType};
 
     use test_case::test_case;
 
-    const TEST_CONFIG_PATH: &str = "tests/configs/osmosis.yaml";
+    const ARTIFACTS_DIR: &str = "target/wasm32-unknown-unknown/release";
 
     pub type ConstPaths<'a> = &'a [((&'a str, &'a str), &'a [(u64, &'a str, &'a str)])];
 
-    fn upload_wasm_files<'a, R: Runner<'a>>(
-        runner: &'a R,
-        wasm_files: HashMap<String, Contract>,
-        signer: &SigningAccount,
-    ) -> StdResult<HashMap<String, u64>> {
-        let wasm = Wasm::new(runner);
-        let config = TestConfig::from_yaml(TEST_CONFIG_PATH);
-        wasm_files
-            .into_values()
-            .map(|contract| contract.artifact)
-            .map(|file_name| {
-                let wasm_file_path = format!("{}/{}", config.artifacts_folder, file_name);
-                println!("Uploading wasm file: {}", wasm_file_path);
-                let wasm_byte_code = std::fs::read(wasm_file_path).unwrap();
-                let code_id = wasm
-                    .store_code(&wasm_byte_code, None, signer)
-                    .map_err(|e| StdError::generic_err(format!("{:?}", e)))?
-                    .data
-                    .code_id;
-                Ok((file_name, code_id))
-            })
-            .collect()
+    fn cw_dex_router_wasm_path() -> String {
+        println!("{}/cw_dex_router.wasm", ARTIFACTS_DIR);
+        format!("{}/cw_dex_router.wasm", ARTIFACTS_DIR)
     }
 
-    fn instantiate_cw_dex_router<'a, R: Runner<'a>>(
+    fn cw_dex_router_contract() -> ContractType {
+        ContractType::Artifact(Artifact::Local(cw_dex_router_wasm_path()))
+    }
+
+    fn upload_wasm_file<'a, R: CwItRunner<'a>>(
         runner: &'a R,
-        api: &dyn Api,
+        contract: ContractType,
+        signer: &SigningAccount,
+    ) -> u64 {
+        runner.store_code(contract, signer).unwrap()
+    }
+
+    fn instantiate_cw_dex_router<'a, R: CwItRunner<'a>>(
+        runner: &'a R,
         signer: &SigningAccount,
         code_id: u64,
-    ) -> RunnerResult<CwDexRouter> {
+    ) -> RunnerResult<String> {
         let wasm = Wasm::new(runner);
         let contract_addr = wasm
             .instantiate(
@@ -75,32 +65,16 @@ mod osmosis_tests {
                 Some("cw-dex-router"),
                 &[],
                 signer,
-            )
-            .map_err(|e| StdError::generic_err(format!("{:?}", e)))?
+            )?
             .data
             .address;
 
-        Ok(CwDexRouterUnchecked::new(contract_addr).check(api)?)
+        Ok(contract_addr)
     }
 
     /// Admin account is always the first account in the list
-    fn setup() -> (
-        OsmosisTestApp,
-        impl Api,
-        Vec<SigningAccount>,
-        HashMap<String, u64>,
-    ) {
-        let api = OsmosisMockApi::new();
-
-        // let docker: Cli = Cli::default();
-        // let app = App::new(TEST_CONFIG_PATH, &docker);
-
-        let test_config = TestConfig::from_yaml(TEST_CONFIG_PATH);
-
+    fn setup() -> (OsmosisTestApp, Vec<SigningAccount>, u64) {
         let app = OsmosisTestApp::new();
-
-        // let admin = test_config.import_account(admin).unwrap();
-        // let sender = test_config.import_account(sender).unwrap();
 
         let accs = app
             .init_accounts(
@@ -134,9 +108,9 @@ mod osmosis_tests {
             }
         }
 
-        let code_ids = upload_wasm_files(&app, test_config.contracts, &accs[0]).unwrap();
+        let code_id = upload_wasm_file(&app, cw_dex_router_contract(), &accs[0]);
 
-        (app, api, accs, code_ids)
+        (app, accs, code_id)
     }
 
     const UOSMO: &str = "uosmo";
@@ -160,43 +134,42 @@ mod osmosis_tests {
     }
 
     fn set_paths<'a>(
-        app: &impl Runner<'a>,
-        api: &dyn Api,
-        cw_dex_router: &CwDexRouter,
+        app: &'a impl CwItRunner<'a>,
+        cw_dex_router_addr: &str,
         paths: ConstPaths,
         sender: &SigningAccount,
         bidirectional: bool,
     ) -> RunnerResult<()> {
-        // Set paths
-        let set_path_msgs = paths
-            .iter()
-            .map(|((offer_asset, ask_asset), path)| {
-                let offer_asset = AssetInfoUnchecked::Native(offer_asset.to_string());
-                let ask_asset = AssetInfoUnchecked::Native(ask_asset.to_string());
-                let path = osmosis_swap_operations_list_from_vec(path);
-                cw_dex_router.set_path_msg(
-                    offer_asset.check(api).unwrap(),
-                    ask_asset.check(api).unwrap(),
-                    &path,
-                    bidirectional,
-                )
-            })
-            .collect::<StdResult<Vec<CosmosMsg>>>()
-            .unwrap();
+        let wasm = Wasm::new(app);
 
-        // Execute set path messages
-        app.execute_cosmos_msgs::<Any>(set_path_msgs.as_slice(), sender)?;
+        // Set paths
+        for ((offer_asset, ask_asset), path) in paths {
+            let offer_asset = AssetInfoUnchecked::Native(offer_asset.to_string());
+            let ask_asset = AssetInfoUnchecked::Native(ask_asset.to_string());
+            let path = osmosis_swap_operations_list_from_vec(path);
+            wasm.execute(
+                cw_dex_router_addr,
+                &ExecuteMsg::SetPath {
+                    offer_asset,
+                    ask_asset,
+                    path: path.into(),
+                    bidirectional,
+                },
+                &[],
+                sender,
+            )?;
+        }
 
         Ok(())
     }
 
     fn bank_balance_query<'a>(
-        runner: &'a impl Runner<'a>,
+        runner: &'a impl CwItRunner<'a>,
         address: String,
         denom: String,
     ) -> StdResult<Uint128> {
-        Bank::new(runner)
-            .query_balance(&QueryBalanceRequest { address, denom })
+        let bank = Bank::new(runner);
+        bank.query_balance(&QueryBalanceRequest { address, denom })
             .unwrap()
             .balance
             .map(|c| Uint128::from_str(&c.amount).unwrap())
@@ -204,7 +177,7 @@ mod osmosis_tests {
     }
 
     fn create_basic_pool<'a>(
-        runner: &'a impl Runner<'a>,
+        runner: &'a impl CwItRunner<'a>,
         pool_liquidity: Vec<Coin>,
         signer: &SigningAccount,
     ) -> OsmosisPool {
@@ -234,36 +207,39 @@ mod osmosis_tests {
         output_path: &[(u64, &str, &str)],
         sender_acc_nr: usize,
     ) -> RunnerResult<()> {
-        let (app, api, accs, code_ids) = setup();
+        let (app, accs, code_id) = setup();
+        let wasm = Wasm::new(&app);
 
         let admin = &accs[0];
         let sender = &accs[sender_acc_nr];
-        let cw_dex_router =
-            instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
+        let cw_dex_router_addr = instantiate_cw_dex_router(&app, admin, code_id)?;
 
         // Set paths
-        set_paths(&app, &api, &cw_dex_router, paths, sender, bidirectional)?;
+        set_paths(&app, &cw_dex_router_addr, paths, sender, bidirectional)?;
 
         let expected_output_path = osmosis_swap_operations_list_from_vec(output_path);
 
         // Query path for pair
-        let querier_wrapper = QuerierWrapper::new(&app);
-        let swap_operations = cw_dex_router
-            .query_path_for_pair(
-                &querier_wrapper,
-                &expected_output_path.from(),
-                &expected_output_path.to(),
+        let swap_operations: SwapOperationsList = wasm
+            .query(
+                &cw_dex_router_addr,
+                &QueryMsg::PathForPair {
+                    offer_asset: expected_output_path.from().into(),
+                    ask_asset: expected_output_path.to().into(),
+                },
             )
             .unwrap();
 
         assert_eq!(swap_operations, expected_output_path);
 
         if bidirectional {
-            let swap_operations_reverse = cw_dex_router
-                .query_path_for_pair(
-                    &querier_wrapper,
-                    &expected_output_path.to(),
-                    &expected_output_path.from(),
+            let swap_operations_reverse: SwapOperationsList = wasm
+                .query(
+                    &cw_dex_router_addr,
+                    &QueryMsg::PathForPair {
+                        offer_asset: expected_output_path.to().into(),
+                        ask_asset: expected_output_path.from().into(),
+                    },
                 )
                 .unwrap();
             assert_eq!(swap_operations_reverse, expected_output_path.reverse());
@@ -520,22 +496,18 @@ mod osmosis_tests {
         offer_asset: &str,
         ask_asset: &str,
     ) -> RunnerResult<()> {
-        let (app, api, accs, code_ids) = setup();
+        let (app, accs, code_id) = setup();
         let admin = &accs[0];
 
         // Check input assets
-        let offer_asset = AssetInfoUnchecked::Native(offer_asset.to_string())
-            .check(&api)
-            .unwrap();
-        let ask_asset = AssetInfoUnchecked::Native(ask_asset.to_string())
-            .check(&api)
-            .unwrap();
+        let offer_asset = AssetInfoUnchecked::Native(offer_asset.to_string());
+        let ask_asset = AssetInfoUnchecked::Native(ask_asset.to_string());
 
         // Find expected offer and ask assets from paths
         let expected_offer_assets = paths
             .iter()
             .filter_map(|((offer, ask), _)| {
-                if ask_asset == AssetInfo::Native(ask.to_string()) {
+                if ask_asset == AssetInfoUnchecked::Native(ask.to_string()) {
                     Some(AssetInfo::Native(offer.to_string()))
                 } else {
                     None
@@ -545,7 +517,7 @@ mod osmosis_tests {
         let expected_ask_assets = paths
             .iter()
             .filter_map(|((offer, ask), _)| {
-                if offer_asset == AssetInfo::Native(offer.to_string()) {
+                if offer_asset == AssetInfoUnchecked::Native(offer.to_string()) {
                     Some(AssetInfo::Native(ask.to_string()))
                 } else {
                     None
@@ -554,11 +526,10 @@ mod osmosis_tests {
             .collect::<Vec<_>>();
 
         // Instantiate cw_dex_router
-        let cw_dex_router =
-            instantiate_cw_dex_router(&app, &api, admin, code_ids["cw_dex_router.wasm"])?;
+        let cw_dex_router_addr = instantiate_cw_dex_router(&app, admin, code_id)?;
 
         // Set paths
-        set_paths(&app, &api, &cw_dex_router, paths, admin, false)?;
+        set_paths(&app, &cw_dex_router_addr, paths, admin, false)?;
 
         // Create pools and add liquidity
         for path in paths {
@@ -581,13 +552,15 @@ mod osmosis_tests {
         }
 
         // Query supported offer assets
-        let querier = QuerierWrapper::new(&app);
-        let supported_offer_assets =
-            cw_dex_router.query_supported_offer_assets(&querier, &ask_asset)?;
-
-        // Query supported ask assets
-        let supported_ask_assets =
-            cw_dex_router.query_supported_ask_assets(&querier, &offer_asset)?;
+        let wasm = Wasm::new(&app);
+        let supported_offer_assets: Vec<AssetInfo> = wasm.query(
+            &cw_dex_router_addr,
+            &QueryMsg::SupportedOfferAssets { ask_asset },
+        )?;
+        let supported_ask_assets: Vec<AssetInfo> = wasm.query(
+            &cw_dex_router_addr,
+            &QueryMsg::SupportedAskAssets { offer_asset },
+        )?;
 
         println!("expected_offer_assets: {:?}", expected_offer_assets);
         println!("supported_offer_assets: {:?}", supported_offer_assets);
