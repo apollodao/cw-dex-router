@@ -34,7 +34,7 @@ panic = 'abort'
 rpath = false
 
 [features]
-default = ["astroport", "osmosis"]
+default = []
 # use library feature to disable all instantiate/execute/query exports
 library = []
 osmosis = ["cw-dex-osmosis", "cw-dex/osmosis"]

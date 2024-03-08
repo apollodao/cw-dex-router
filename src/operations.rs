@@ -24,6 +24,7 @@ impl Deref for Pool {
             Pool::Osmosis(pool) => pool as &dyn PoolTrait,
             #[cfg(feature = "astroport")]
             Pool::Astroport(pool) => pool as &dyn PoolTrait,
+            _ => panic!("No pool feature enabled"),
         }
     }
 }
@@ -54,6 +55,7 @@ pub type SwapOperationUnchecked = SwapOperationBase<String>;
 pub type SwapOperation = SwapOperationBase<Addr>;
 
 impl SwapOperationUnchecked {
+    #[allow(unused_variables, unreachable_code)]
     pub fn check(&self, deps: Deps) -> Result<SwapOperation, ContractError> {
         let op = SwapOperation {
             ask_asset_info: self.ask_asset_info.check(deps.api)?,
@@ -138,6 +140,7 @@ impl SwapOperationsListUnchecked {
         Self(operations)
     }
 
+    #[allow(unreachable_code)]
     pub fn check(&self, deps: Deps) -> Result<SwapOperationsList, ContractError> {
         let operations = self
             .0
@@ -193,6 +196,7 @@ impl SwapOperationsList {
         Self::new(operations)
     }
 
+    #[allow(unused_variables, unreachable_code)]
     pub fn into_execute_msgs(
         &self,
         env: &Env,
