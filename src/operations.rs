@@ -1,34 +1,9 @@
-use std::ops::Deref;
-
 use crate::msg::CallbackMsg;
+pub use crate::pool::Pool;
 use crate::ContractError;
 use apollo_cw_asset::{Asset, AssetInfo, AssetInfoBase};
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, CosmosMsg, Deps, Env, Response, Uint128};
-use cw_dex::traits::Pool as PoolTrait;
-
-#[cw_serde]
-pub enum Pool {
-    #[cfg(feature = "osmosis")]
-    Osmosis(cw_dex_osmosis::OsmosisPool),
-    #[cfg(feature = "astroport")]
-    Astroport(cw_dex_astroport::AstroportPool),
-}
-
-impl Deref for Pool {
-    type Target = dyn PoolTrait;
-
-    fn deref(&self) -> &Self::Target {
-        #[allow(unreachable_patterns)]
-        match self {
-            #[cfg(feature = "osmosis")]
-            Pool::Osmosis(pool) => pool as &dyn PoolTrait,
-            #[cfg(feature = "astroport")]
-            Pool::Astroport(pool) => pool as &dyn PoolTrait,
-            _ => panic!("No pool feature enabled"),
-        }
-    }
-}
 
 #[cw_serde]
 pub struct SwapOperationBase<T> {
@@ -140,8 +115,7 @@ impl SwapOperationsListUnchecked {
     pub fn new(operations: Vec<SwapOperationUnchecked>) -> Self {
         Self(operations)
     }
-
-    #[allow(unreachable_code)]
+    #[allow(unused_variables, unreachable_code)]
     pub fn check(&self, deps: Deps) -> Result<SwapOperationsList, ContractError> {
         let operations = self
             .0
@@ -307,8 +281,7 @@ mod unit_tests {
     fn test_deserialize_pool_from_cw_dex_pool_osmosis() {
         use cosmwasm_std::to_json_vec;
 
-        let cw_dex_pool =
-            cw_dex::Pool::Osmosis(cw_dex::implementations::osmosis::OsmosisPool::unchecked(1));
+        let cw_dex_pool = Pool::Osmosis(cw_dex_osmosis::OsmosisPool::unchecked(1));
         let cw_dex_pool_binary = to_json_vec(&cw_dex_pool).unwrap();
 
         let pool = Pool::Osmosis(OsmosisPool::unchecked(1));
@@ -322,20 +295,20 @@ mod unit_tests {
     #[allow(deprecated)]
     fn test_deserialize_pool_from_cw_dex_pool_astroport() {
         use cosmwasm_std::{to_json_vec, Addr};
+        use cw_dex_astroport::AstroportPool;
 
-        let cw_dex_pool =
-            cw_dex::Pool::Astroport(cw_dex::implementations::astroport::AstroportPool {
-                pair_addr: Addr::unchecked("pair_addr"),
-                lp_token_addr: Addr::unchecked("lp_token_addr"),
-                pool_assets: vec![],
-                pair_type: cw_dex::implementations::astroport::astroport::factory::PairType::Xyk {},
-                liquidity_manager: Addr::unchecked("liquidity_manager"),
-            });
+        let cw_dex_pool = Pool::Astroport(AstroportPool {
+            pair_addr: Addr::unchecked("pair_addr"),
+            lp_token: AssetInfo::cw20(Addr::unchecked("lp_token_addr")),
+            pool_assets: vec![],
+            pair_type: cw_dex_astroport::astroport::factory::PairType::Xyk {},
+            liquidity_manager: Addr::unchecked("liquidity_manager"),
+        });
         let cw_dex_pool_binary = to_json_vec(&cw_dex_pool).unwrap();
 
-        let pool = Pool::Astroport(cw_dex_astroport::AstroportPool {
+        let pool = Pool::Astroport(AstroportPool {
             pair_addr: Addr::unchecked("pair_addr"),
-            lp_token_addr: Addr::unchecked("lp_token_addr"),
+            lp_token: AssetInfo::cw20(Addr::unchecked("lp_token_addr")),
             pool_assets: vec![],
             pair_type: cw_dex_astroport::astroport::factory::PairType::Xyk {},
             liquidity_manager: Addr::unchecked("liquidity_manager"),
