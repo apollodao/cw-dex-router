@@ -19,6 +19,7 @@ impl Deref for Pool {
     type Target = dyn PoolTrait;
 
     fn deref(&self) -> &Self::Target {
+        #[allow(unreachable_patterns)]
         match self {
             #[cfg(feature = "osmosis")]
             Pool::Osmosis(pool) => pool as &dyn PoolTrait,
