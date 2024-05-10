@@ -17,6 +17,9 @@ jobs:
       - name: Install cargo make
         uses: davidB/rust-cargo-make@v1
 
+      - name: Install stable toolchain
+        run: cargo make install-stable
+
       - name: Install nightly toolchain
         run: cargo make install-nightly
 

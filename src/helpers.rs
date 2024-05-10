@@ -6,7 +6,7 @@ use cosmwasm_schema::cw_serde;
 use cw20::{Cw20Coin, Cw20ExecuteMsg};
 
 use cosmwasm_std::{
-    to_binary, Addr, Api, Coin, CosmosMsg, Env, MessageInfo, QuerierWrapper, QueryRequest,
+    to_json_binary, Addr, Api, Coin, CosmosMsg, Env, MessageInfo, QuerierWrapper, QueryRequest,
     StdError, StdResult, Uint128, WasmMsg, WasmQuery,
 };
 
@@ -48,7 +48,7 @@ impl CwDexRouterUnchecked {
         Ok(CosmosMsg::Wasm(WasmMsg::Instantiate {
             code_id,
             admin,
-            msg: to_binary(&InstantiateMsg {})?,
+            msg: to_json_binary(&InstantiateMsg {})?,
             funds: vec![],
             label: label.unwrap_or_else(|| "cw-dex-router".to_string()),
         }))
@@ -65,7 +65,7 @@ impl CwDexRouter {
     }
 
     pub fn call<T: Into<ExecuteMsg>>(&self, msg: T, funds: Vec<Coin>) -> StdResult<CosmosMsg> {
-        let msg = to_binary(&msg.into())?;
+        let msg = to_json_binary(&msg.into())?;
         Ok(WasmMsg::Execute {
             contract_addr: self.addr().into(),
             msg,
@@ -119,7 +119,7 @@ impl CwDexRouter {
             .map(|x| {
                 Ok(CosmosMsg::Wasm(WasmMsg::Execute {
                     contract_addr: x.address,
-                    msg: to_binary(&Cw20ExecuteMsg::IncreaseAllowance {
+                    msg: to_json_binary(&Cw20ExecuteMsg::IncreaseAllowance {
                         spender: self.addr().to_string(),
                         amount: x.amount,
                         expires: None,
@@ -169,7 +169,7 @@ impl CwDexRouter {
     ) -> StdResult<Uint128> {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
-            msg: to_binary(&QueryMsg::SimulateSwapOperations {
+            msg: to_json_binary(&QueryMsg::SimulateSwapOperations {
                 offer_amount,
                 operations: operations.into(),
             })?,
@@ -184,7 +184,7 @@ impl CwDexRouter {
     ) -> StdResult<Uint128> {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
-            msg: to_binary(&QueryMsg::SimulateBasketLiquidate {
+            msg: to_json_binary(&QueryMsg::SimulateBasketLiquidate {
                 offer_assets: offer_assets.into(),
                 receive_asset: receive_asset.to_owned().into(),
             })?,
@@ -199,7 +199,7 @@ impl CwDexRouter {
     ) -> StdResult<SwapOperationsList> {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
-            msg: to_binary(&QueryMsg::PathForPair {
+            msg: to_json_binary(&QueryMsg::PathForPair {
                 offer_asset: offer_asset.to_owned().into(),
                 ask_asset: ask_asset.to_owned().into(),
             })?,
@@ -213,7 +213,7 @@ impl CwDexRouter {
     ) -> StdResult<Vec<AssetInfo>> {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
-            msg: to_binary(&QueryMsg::SupportedOfferAssets {
+            msg: to_json_binary(&QueryMsg::SupportedOfferAssets {
                 ask_asset: ask_asset.to_owned().into(),
             })?,
         }))
@@ -226,7 +226,7 @@ impl CwDexRouter {
     ) -> StdResult<Vec<AssetInfo>> {
         querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: self.0.to_string(),
-            msg: to_binary(&QueryMsg::SupportedAskAssets {
+            msg: to_json_binary(&QueryMsg::SupportedAskAssets {
                 offer_asset: offer_asset.to_owned().into(),
             })?,
         }))
