@@ -47,7 +47,7 @@ builds = [
 ]
 
 [dependencies]
-cosmwasm-std = "1.5"
+cosmwasm-std = "1.5.4"
 cosmwasm-schema = "1.2.1"
 apollo-cw-asset = "0.1.0"
 cw-controllers = "1.0.1"
