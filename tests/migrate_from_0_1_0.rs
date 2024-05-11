@@ -44,7 +44,7 @@ mod tests {
         runner: &'a impl Runner<'a>,
         pool_liquidity: Vec<Coin>,
         signer: &SigningAccount,
-    ) -> cw_dex::implementations::osmosis::OsmosisPool {
+    ) -> cw_dex_osmosis::OsmosisPool {
         let gamm = Gamm::new(runner);
 
         // Create 1:1 pool
@@ -54,7 +54,7 @@ mod tests {
             .data
             .pool_id;
 
-        cw_dex::implementations::osmosis::OsmosisPool::unchecked(pool_id)
+        cw_dex_osmosis::OsmosisPool::unchecked(pool_id)
     }
 
     #[test]
