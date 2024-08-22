@@ -302,7 +302,7 @@ mod unit_tests {
             lp_token: AssetInfo::cw20(Addr::unchecked("lp_token_addr")),
             pool_assets: vec![],
             pair_type: cw_dex_astroport::astroport::factory::PairType::Xyk {},
-            liquidity_manager: Addr::unchecked("liquidity_manager"),
+            liquidity_manager: Some(Addr::unchecked("liquidity_manager")),
         });
         let cw_dex_pool_binary = to_json_vec(&cw_dex_pool).unwrap();
 
@@ -311,7 +311,7 @@ mod unit_tests {
             lp_token: AssetInfo::cw20(Addr::unchecked("lp_token_addr")),
             pool_assets: vec![],
             pair_type: cw_dex_astroport::astroport::factory::PairType::Xyk {},
-            liquidity_manager: Addr::unchecked("liquidity_manager"),
+            liquidity_manager: Some(Addr::unchecked("liquidity_manager")),
         });
         let pool_binary = to_json_vec(&pool).unwrap();
 

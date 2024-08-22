@@ -12,7 +12,9 @@ vulnerability = "deny"
 unmaintained = "deny"
 notice = "deny"
 unsound = "deny"
-ignore = []
+ignore = [
+        "RUSTSEC-2024-0344" # Confirmed as not applicable to CosmWasm: https://github.com/CosmWasm/cosmwasm/issues/2175#issuecomment-2180960022
+]
 
 [bans]
 multiple-versions = "allow"
