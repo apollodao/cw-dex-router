@@ -61,7 +61,7 @@ cw-dex-osmosis = { version = "0.1.1-rc.1", optional = true }
 cw-dex-astroport  = { version = "0.2.0-rc.3", optional = true}
 
 [dev-dependencies]
-cw-it = { version = "0.3.1", features = ["osmosis-test-tube"] }
+cw-it = { version = "0.4.0-rc.9", features = ["osmosis-test-tube"] }
 test-case = "3.0.0"
 serde_json = "1.0.107"
 
