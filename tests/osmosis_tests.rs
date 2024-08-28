@@ -16,10 +16,11 @@ mod osmosis_tests {
     use cw_dex_osmosis::OsmosisPool;
     use cw_dex_router::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
-    use cw_dex_router::operations::{Pool, SwapOperation, SwapOperationsList};
+    use cw_dex_router::operations::{SwapOperation, SwapOperationsList};
 
     use cw_dex_router::helpers::{CwDexRouter, CwDexRouterUnchecked};
 
+    use cw_dex_router::pool::Pool;
     use cw_it::cosmrs::Any;
     use cw_it::osmosis_std::types::cosmos::bank::v1beta1::QueryBalanceRequest;
     use cw_it::osmosis_test_tube::{Gamm, OsmosisTestApp};
